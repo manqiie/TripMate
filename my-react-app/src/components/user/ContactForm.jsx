@@ -1,7 +1,8 @@
-// src/components/user/ContactForm.js
+// src/components/user/ContactForm.jsx
 import React, { useState } from 'react';
 import UserService from '../../services/user.service';
 import AuthService from '../../services/auth.service';
+import { FaPaperPlane, FaUser, FaEnvelope, FaHeading, FaCommentAlt, FaCheck } from 'react-icons/fa';
 
 const ContactForm = () => {
   const currentUser = AuthService.getCurrentUser();
@@ -14,8 +15,6 @@ const ContactForm = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
-
-  const { name, email, subject, messageText } = formData;
 
   const onChange = e => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -50,71 +49,138 @@ const ContactForm = () => {
   };
 
   return (
-    <div className="card">
-      <div className="card-header">
-        <h2>Contact Us</h2>
-      </div>
-      <div className="card-body">
-        {message && (
-          <div className={`alert ${isSuccess ? 'alert-success' : 'alert-danger'}`} role="alert">
-            {message}
+    <div className="row justify-content-center">
+      <div className="col-lg-8">
+        <div className="card shadow-sm">
+          <div className="card-header bg-primary text-white text-center py-3">
+            <h2 className="mb-0 d-flex align-items-center justify-content-center">
+              <FaPaperPlane className="me-2" /> Contact Us
+            </h2>
           </div>
-        )}
-        <form onSubmit={onSubmit}>
-          <div className="mb-3">
-            <label htmlFor="name" className="form-label">Name</label>
-            <input
-              type="text"
-              className="form-control"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={onChange}
-              required
-            />
+          <div className="card-body p-4">
+            {message && (
+              <div className={`alert ${isSuccess ? 'alert-success' : 'alert-danger'} d-flex align-items-center`} role="alert">
+                {isSuccess ? <FaCheck className="me-2" /> : null}
+                {message}
+              </div>
+            )}
+            
+            <p className="text-center text-muted mb-4">
+              Have questions or feedback? We'd love to hear from you! Fill out the form below and our team will get back to you as soon as possible.
+            </p>
+            
+            <form onSubmit={onSubmit}>
+              <div className="row">
+                <div className="col-md-6 mb-3">
+                  <label htmlFor="name" className="form-label">
+                    <FaUser className="me-2" />Name
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={onChange}
+                    placeholder="Your name"
+                    required
+                  />
+                </div>
+                <div className="col-md-6 mb-3">
+                  <label htmlFor="email" className="form-label">
+                    <FaEnvelope className="me-2" />Email
+                  </label>
+                  <input
+                    type="email"
+                    className="form-control"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={onChange}
+                    placeholder="Your email address"
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div className="mb-3">
+                <label htmlFor="subject" className="form-label">
+                  <FaHeading className="me-2" />Subject
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="subject"
+                  name="subject"
+                  value={formData.subject}
+                  onChange={onChange}
+                  placeholder="What is your message about?"
+                  required
+                />
+              </div>
+              
+              <div className="mb-4">
+                <label htmlFor="message" className="form-label">
+                  <FaCommentAlt className="me-2" />Message
+                </label>
+                <textarea
+                  className="form-control"
+                  id="message"
+                  name="message"
+                  rows="6"
+                  value={formData.message}
+                  onChange={onChange}
+                  placeholder="Please describe your question or feedback in detail..."
+                  required
+                ></textarea>
+              </div>
+              
+              <div className="d-grid">
+                <button type="submit" className="btn btn-primary btn-lg" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <FaPaperPlane className="me-2" /> Send Message
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+            
+            <div className="row mt-5">
+              <div className="col-md-4 text-center mb-3 mb-md-0">
+                <div className="p-3 bg-light rounded-circle d-inline-flex justify-content-center align-items-center mb-3" style={{ width: "60px", height: "60px" }}>
+                  <FaEnvelope size={24} className="text-primary" />
+                </div>
+                <h5>Email Us</h5>
+                <p className="text-muted">support@tripmate.com</p>
+              </div>
+              
+              <div className="col-md-4 text-center mb-3 mb-md-0">
+                <div className="p-3 bg-light rounded-circle d-inline-flex justify-content-center align-items-center mb-3" style={{ width: "60px", height: "60px" }}>
+                  <FaPhone size={24} className="text-primary" />
+                </div>
+                <h5>Call Us</h5>
+                <p className="text-muted">+1 (555) 123-4567</p>
+              </div>
+              
+              <div className="col-md-4 text-center">
+                <div className="p-3 bg-light rounded-circle d-inline-flex justify-content-center align-items-center mb-3" style={{ width: "60px", height: "60px" }}>
+                  <FaMapMarkerAlt size={24} className="text-primary" />
+                </div>
+                <h5>Location</h5>
+                <p className="text-muted">123 Travel St, New York, NY</p>
+              </div>
+            </div>
           </div>
-          <div className="mb-3">
-            <label htmlFor="email" className="form-label">Email</label>
-            <input
-              type="email"
-              className="form-control"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={onChange}
-              required
-            />
-          </div>
-          <div className="mb-3">
-            <label htmlFor="subject" className="form-label">Subject</label>
-            <input
-              type="text"
-              className="form-control"
-              id="subject"
-              name="subject"
-              value={formData.subject}
-              onChange={onChange}
-              required
-            />
-          </div>
-          <div className="mb-3">
-            <label htmlFor="message" className="form-label">Message</label>
-            <textarea
-              className="form-control"
-              id="message"
-              name="message"
-              rows="5"
-              value={formData.message}
-              onChange={onChange}
-              required
-            ></textarea>
-          </div>
-          <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? 'Sending...' : 'Send Message'}
-          </button>
-        </form>
+        </div>
       </div>
     </div>
   );
 };
+
 export default ContactForm;

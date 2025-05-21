@@ -1,48 +1,145 @@
-// src/components/layout/Navbar.js
-import React from 'react';
-import { Link } from 'react-router-dom';
+// src/components/layout/Navbar.jsx
+import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { FaPlane, FaUserCircle, FaSignInAlt, FaUserPlus, FaHome, FaTachometerAlt, FaEnvelope, FaSignOutAlt } from 'react-icons/fa';
 
 const Navbar = ({ currentUser, logOut }) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
+
+  const isActive = (path) => {
+    return location.pathname === path ? 'active' : '';
+  };
+
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav className="navbar navbar-expand-lg navbar-dark">
       <div className="container">
-        <Link className="navbar-brand" to="/">TripMate</Link>
-        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <Link className="navbar-brand" to="/" onClick={closeMenu}>
+          <FaPlane className="me-2" />
+          TripMate
+        </Link>
+        <button 
+          className="navbar-toggler" 
+          type="button" 
+          onClick={toggleMenu}
+          aria-expanded={isMenuOpen ? "true" : "false"}
+        >
           <span className="navbar-toggler-icon"></span>
         </button>
-        <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav ms-auto">
+        <div className={`collapse navbar-collapse ${isMenuOpen ? 'show' : ''}`}>
+          <ul className="navbar-nav ms-auto align-items-center">
             <li className="nav-item">
-              <Link className="nav-link" to="/">Home</Link>
+              <Link 
+                className={`nav-link d-flex align-items-center ${isActive('/')}`} 
+                to="/" 
+                onClick={closeMenu}
+              >
+                <FaHome className="me-2" />
+                Home
+              </Link>
             </li>
             
             {currentUser ? (
               <>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/profile">Profile</Link>
+                  <Link 
+                    className={`nav-link d-flex align-items-center ${isActive('/profile')}`} 
+                    to="/profile"
+                    onClick={closeMenu}
+                  >
+                    <FaUserCircle className="me-2" />
+                    Profile
+                  </Link>
                 </li>
                 {currentUser.is_staff && (
                   <li className="nav-item">
-                    <Link className="nav-link" to="/admin">Admin Panel</Link>
+                    <Link 
+                      className={`nav-link d-flex align-items-center ${isActive('/admin')}`} 
+                      to="/admin"
+                      onClick={closeMenu}
+                    >
+                      <FaTachometerAlt className="me-2" />
+                      Admin
+                    </Link>
                   </li>
                 )}
                 <li className="nav-item">
-                  <Link className="nav-link" to="/" onClick={logOut}>Logout</Link>
+                  <Link 
+                    className="nav-link d-flex align-items-center" 
+                    to="/" 
+                    onClick={() => {
+                      logOut();
+                      closeMenu();
+                    }}
+                  >
+                    <FaSignOutAlt className="me-2" />
+                    Logout
+                  </Link>
                 </li>
               </>
             ) : (
               <>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/login">Login</Link>
+                  <Link 
+                    className={`nav-link d-flex align-items-center ${isActive('/login')}`} 
+                    to="/login"
+                    onClick={closeMenu}
+                  >
+                    <FaSignInAlt className="me-2" />
+                    Login
+                  </Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/register">Register</Link>
+                  <Link 
+                    className={`nav-link d-flex align-items-center ${isActive('/register')}`} 
+                    to="/register"
+                    onClick={closeMenu}
+                  >
+                    <FaUserPlus className="me-2" />
+                    Register
+                  </Link>
                 </li>
               </>
             )}
             <li className="nav-item">
-              <Link className="nav-link" to="/contact">Contact Us</Link>
+              <Link 
+                className={`nav-link d-flex align-items-center ${isActive('/contact')}`} 
+                to="/contact"
+                onClick={closeMenu}
+              >
+                <FaEnvelope className="me-2" />
+                Contact
+              </Link>
             </li>
+            {currentUser && (
+              <li className="nav-item ms-lg-2 mt-3 mt-lg-0">
+                <div className="d-flex align-items-center">
+                  {currentUser.profile && currentUser.profile.profile_picture ? (
+                    <img 
+                      src={currentUser.profile.profile_picture} 
+                      alt="Profile" 
+                      className="rounded-circle"
+                      width="32"
+                      height="32"
+                      style={{ objectFit: "cover" }}
+                    />
+                  ) : (
+                    <div className="rounded-circle bg-light d-flex align-items-center justify-content-center" 
+                         style={{ width: "32px", height: "32px", color: "#4066E0" }}>
+                      {currentUser.first_name && currentUser.first_name[0]}
+                    </div>
+                  )}
+                </div>
+              </li>
+            )}
           </ul>
         </div>
       </div>

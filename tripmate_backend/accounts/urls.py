@@ -4,6 +4,8 @@ from django.urls import path
 from rest_framework.authtoken.views import obtain_auth_token
 from . import views
 
+from django.contrib.auth import views as auth_views
+
 urlpatterns = [
     # User authentication
     path('register/', views.RegisterView.as_view(), name='register'),
