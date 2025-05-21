@@ -8,7 +8,8 @@ const UserService = {
   },
 
   updateUserProfile: (userData) => {
-    return apiClient.put('accounts/profile/', userData);
+    // Using PATCH instead of PUT for partial updates
+    return apiClient.patch('accounts/profile/', userData);
   },
 
   changePassword: (oldPassword, newPassword) => {
@@ -29,7 +30,13 @@ const UserService = {
   },
 
   updateUser: (id, userData) => {
-    return apiClient.put(`accounts/admin/users/${id}/`, userData);
+    return apiClient.patch(`accounts/admin/users/${id}/`, userData);
+  },
+
+  resetUserPassword: (id, newPassword) => {
+    return apiClient.post(`accounts/admin/users/${id}/reset-password/`, {
+      new_password: newPassword,
+    });
   },
 
   deleteUser: (id) => {

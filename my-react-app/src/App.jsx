@@ -54,7 +54,6 @@ function App() {
               currentUser ? <Navigate to="/profile" /> : <Register setCurrentUser={setCurrentUser} />
             } />
             <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/reset-password-confirm/:uid/:token" element={<ResetPasswordConfirm />} />
             <Route path="/contact" element={<ContactForm />} />
             
             {/* Protected User Routes */}

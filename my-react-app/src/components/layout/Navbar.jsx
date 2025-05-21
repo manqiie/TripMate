@@ -1,11 +1,16 @@
 // src/components/layout/Navbar.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { FaPlane, FaUserCircle, FaSignInAlt, FaUserPlus, FaHome, FaTachometerAlt, FaEnvelope, FaSignOutAlt } from 'react-icons/fa';
 
 const Navbar = ({ currentUser, logOut }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  
+  // Close menu when route changes
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -34,11 +39,11 @@ const Navbar = ({ currentUser, logOut }) => {
         >
           <span className="navbar-toggler-icon"></span>
         </button>
-        <div className={`collapse navbar-collapse ${isMenuOpen ? 'show' : ''}`}>
+        <div className={`navbar-collapse ${isMenuOpen ? 'show' : ''}`}>
           <ul className="navbar-nav ms-auto align-items-center">
             <li className="nav-item">
               <Link 
-                className={`nav-link d-flex align-items-center ${isActive('/')}`} 
+                className={`nav-link ${isActive('/')}`} 
                 to="/" 
                 onClick={closeMenu}
               >
@@ -51,7 +56,7 @@ const Navbar = ({ currentUser, logOut }) => {
               <>
                 <li className="nav-item">
                   <Link 
-                    className={`nav-link d-flex align-items-center ${isActive('/profile')}`} 
+                    className={`nav-link ${isActive('/profile')}`} 
                     to="/profile"
                     onClick={closeMenu}
                   >
@@ -62,7 +67,7 @@ const Navbar = ({ currentUser, logOut }) => {
                 {currentUser.is_staff && (
                   <li className="nav-item">
                     <Link 
-                      className={`nav-link d-flex align-items-center ${isActive('/admin')}`} 
+                      className={`nav-link ${isActive('/admin')}`} 
                       to="/admin"
                       onClick={closeMenu}
                     >
@@ -73,7 +78,7 @@ const Navbar = ({ currentUser, logOut }) => {
                 )}
                 <li className="nav-item">
                   <Link 
-                    className="nav-link d-flex align-items-center" 
+                    className="nav-link" 
                     to="/" 
                     onClick={() => {
                       logOut();
@@ -84,12 +89,31 @@ const Navbar = ({ currentUser, logOut }) => {
                     Logout
                   </Link>
                 </li>
+                <li className="nav-item ms-lg-2 mt-2 mt-lg-0">
+                  <div className="d-flex align-items-center">
+                    {currentUser.profile && currentUser.profile.profile_picture ? (
+                      <img 
+                        src={currentUser.profile.profile_picture} 
+                        alt="Profile" 
+                        className="rounded-circle"
+                        width="32"
+                        height="32"
+                        style={{ objectFit: "cover" }}
+                      />
+                    ) : (
+                      <div className="rounded-circle bg-light d-flex align-items-center justify-content-center" 
+                           style={{ width: "32px", height: "32px", color: "#4066E0" }}>
+                        {currentUser.first_name && currentUser.first_name[0]}
+                      </div>
+                    )}
+                  </div>
+                </li>
               </>
             ) : (
               <>
                 <li className="nav-item">
                   <Link 
-                    className={`nav-link d-flex align-items-center ${isActive('/login')}`} 
+                    className={`nav-link ${isActive('/login')}`} 
                     to="/login"
                     onClick={closeMenu}
                   >
@@ -99,7 +123,7 @@ const Navbar = ({ currentUser, logOut }) => {
                 </li>
                 <li className="nav-item">
                   <Link 
-                    className={`nav-link d-flex align-items-center ${isActive('/register')}`} 
+                    className={`nav-link ${isActive('/register')}`} 
                     to="/register"
                     onClick={closeMenu}
                   >
@@ -111,7 +135,7 @@ const Navbar = ({ currentUser, logOut }) => {
             )}
             <li className="nav-item">
               <Link 
-                className={`nav-link d-flex align-items-center ${isActive('/contact')}`} 
+                className={`nav-link ${isActive('/contact')}`} 
                 to="/contact"
                 onClick={closeMenu}
               >
@@ -119,27 +143,6 @@ const Navbar = ({ currentUser, logOut }) => {
                 Contact
               </Link>
             </li>
-            {currentUser && (
-              <li className="nav-item ms-lg-2 mt-3 mt-lg-0">
-                <div className="d-flex align-items-center">
-                  {currentUser.profile && currentUser.profile.profile_picture ? (
-                    <img 
-                      src={currentUser.profile.profile_picture} 
-                      alt="Profile" 
-                      className="rounded-circle"
-                      width="32"
-                      height="32"
-                      style={{ objectFit: "cover" }}
-                    />
-                  ) : (
-                    <div className="rounded-circle bg-light d-flex align-items-center justify-content-center" 
-                         style={{ width: "32px", height: "32px", color: "#4066E0" }}>
-                      {currentUser.first_name && currentUser.first_name[0]}
-                    </div>
-                  )}
-                </div>
-              </li>
-            )}
           </ul>
         </div>
       </div>

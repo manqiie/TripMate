@@ -42,6 +42,19 @@ const AuthService = {
   isAdmin: () => {
     const user = AuthService.getCurrentUser();
     return user && user.is_staff;
+  },
+  
+  // New password reset methods
+  requestPasswordReset: (email) => {
+    return apiClient.post('accounts/password-reset-request/', { email });
+  },
+  
+  verifyPasswordResetToken: (email, token, newPassword) => {
+    return apiClient.post('accounts/password-reset-verify/', {
+      email,
+      token,
+      new_password: newPassword
+    });
   }
 };
 

@@ -96,13 +96,32 @@ const EditProfile = () => {
     
     // Create a FormData object for file upload
     const formDataToSend = new FormData();
-    formDataToSend.append('first_name', formData.first_name);
-    formDataToSend.append('last_name', formData.last_name);
-    formDataToSend.append('email', formData.email);
-    formDataToSend.append('profile.bio', formData.profile.bio || '');
-    formDataToSend.append('profile.location', formData.profile.location || '');
-    formDataToSend.append('profile.phone_number', formData.profile.phone_number || '');
     
+    // Only include fields that have changed
+    if (formData.first_name) {
+      formDataToSend.append('first_name', formData.first_name);
+    }
+    
+    if (formData.last_name) {
+      formDataToSend.append('last_name', formData.last_name);
+    }
+    
+    // Email is not included, as we're not allowing email changes
+    
+    // Only add profile fields if they have values
+    if (formData.profile.bio !== undefined) {
+      formDataToSend.append('profile.bio', formData.profile.bio || '');
+    }
+    
+    if (formData.profile.location !== undefined) {
+      formDataToSend.append('profile.location', formData.profile.location || '');
+    }
+    
+    if (formData.profile.phone_number !== undefined) {
+      formDataToSend.append('profile.phone_number', formData.profile.phone_number || '');
+    }
+    
+    // Add profile picture if it's a new file
     if (formData.profile.profile_picture && typeof formData.profile.profile_picture !== 'string') {
       formDataToSend.append('profile.profile_picture', formData.profile.profile_picture);
     }
@@ -208,7 +227,6 @@ const EditProfile = () => {
                     name="first_name"
                     value={formData.first_name}
                     onChange={onChange}
-                    required
                   />
                 </div>
                 <div className="col-md-6 mb-3">
@@ -222,14 +240,13 @@ const EditProfile = () => {
                     name="last_name"
                     value={formData.last_name}
                     onChange={onChange}
-                    required
                   />
                 </div>
               </div>
               
               <div className="mb-3">
                 <label htmlFor="email" className="form-label">
-                  <FaEnvelope className="me-2" />Email
+                  <FaEnvelope className="me-2" />Email (Cannot be changed)
                 </label>
                 <input
                   type="email"
@@ -237,9 +254,10 @@ const EditProfile = () => {
                   id="email"
                   name="email"
                   value={formData.email}
-                  onChange={onChange}
-                  required
+                  disabled
+                  readOnly
                 />
+                <small className="text-muted">Your email address cannot be changed after registration</small>
               </div>
               
               <div className="mb-3">
@@ -253,7 +271,7 @@ const EditProfile = () => {
                   value={formData.profile.bio || ''}
                   onChange={onChange}
                   rows="3"
-                  placeholder="Tell us about yourself"
+                  placeholder="Tell us about yourself (optional)"
                 ></textarea>
               </div>
               
@@ -269,7 +287,7 @@ const EditProfile = () => {
                     name="profile.location"
                     value={formData.profile.location || ''}
                     onChange={onChange}
-                    placeholder="City, Country"
+                    placeholder="City, Country (optional)"
                   />
                 </div>
                 <div className="col-md-6 mb-3">
@@ -283,7 +301,7 @@ const EditProfile = () => {
                     name="profile.phone_number"
                     value={formData.profile.phone_number || ''}
                     onChange={onChange}
-                    placeholder="+1 (555) 123-4567"
+                    placeholder="+1 (555) 123-4567 (optional)"
                   />
                 </div>
               </div>

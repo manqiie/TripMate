@@ -77,18 +77,23 @@ DATABASES = {
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    # },
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+          'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+          'OPTIONS': {
+                    'min_length': 6,
+           }
+     },
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    # },
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    # },
+    
+
 ]
 
 # Internationalization
@@ -123,4 +128,14 @@ REST_FRAMEWORK = {
 CORS_ALLOW_ALL_ORIGINS = True  # For development only, restrict in production
 
 # Email settings (for password reset)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development
+# Email settings - For real email service
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Or your email provider's SMTP server
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'TripMate321@gmail.com'  # Replace with your actual email
+EMAIL_HOST_PASSWORD = 'cmsizmqdqjabhzdm'  # Use an app password, not your regular password
+DEFAULT_FROM_EMAIL = 'TripMate <TripMate321@gmail.com>'
+
+# Password Reset Token settings
+PASSWORD_RESET_TIMEOUT = 900  # 15 minutes in seconds

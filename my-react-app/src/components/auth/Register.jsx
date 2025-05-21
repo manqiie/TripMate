@@ -13,6 +13,7 @@ const Register = ({ setCurrentUser }) => {
     first_name: '',
     last_name: ''
   });
+  
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
