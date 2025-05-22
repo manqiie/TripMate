@@ -24,6 +24,7 @@ const EditProfile = () => {
   const fileInputRef = useRef();
   const navigate = useNavigate();
 
+  // Update the useEffect in EditProfile.jsx to properly handle the profile data
   useEffect(() => {
     UserService.getUserProfile()
       .then(response => {
@@ -89,6 +90,7 @@ const EditProfile = () => {
     }
   };
 
+  // In EditProfile.jsx - update the onSubmit function
   const onSubmit = e => {
     e.preventDefault();
     setUpdating(true);
@@ -97,37 +99,30 @@ const EditProfile = () => {
     // Create a FormData object for file upload
     const formDataToSend = new FormData();
     
-    // Only include fields that have changed
-    if (formData.first_name) {
-      formDataToSend.append('first_name', formData.first_name);
+    // Basic user data
+    formDataToSend.append('first_name', formData.first_name || '');
+    formDataToSend.append('last_name', formData.last_name || '');
+    
+    // Profile data - using the correct fields without the 'profile.' prefix
+    // This is important - your backend might expect these fields directly
+    formDataToSend.append('bio', formData.profile.bio || '');
+    formDataToSend.append('location', formData.profile.location || '');
+    formDataToSend.append('phone_number', formData.profile.phone_number || '');
+    
+    // Handle profile picture separately
+    if (formData.profile.profile_picture && 
+        typeof formData.profile.profile_picture !== 'string') {
+      formDataToSend.append('profile_picture', formData.profile.profile_picture);
     }
-    
-    if (formData.last_name) {
-      formDataToSend.append('last_name', formData.last_name);
-    }
-    
-    // Email is not included, as we're not allowing email changes
-    
-    // Only add profile fields if they have values
-    if (formData.profile.bio !== undefined) {
-      formDataToSend.append('profile.bio', formData.profile.bio || '');
-    }
-    
-    if (formData.profile.location !== undefined) {
-      formDataToSend.append('profile.location', formData.profile.location || '');
-    }
-    
-    if (formData.profile.phone_number !== undefined) {
-      formDataToSend.append('profile.phone_number', formData.profile.phone_number || '');
-    }
-    
-    // Add profile picture if it's a new file
-    if (formData.profile.profile_picture && typeof formData.profile.profile_picture !== 'string') {
-      formDataToSend.append('profile.profile_picture', formData.profile.profile_picture);
+
+    console.log('Sending form data:');
+    for (let pair of formDataToSend.entries()) {
+      console.log(pair[0] + ': ' + pair[1]);
     }
 
     UserService.updateUserProfile(formDataToSend)
       .then(response => {
+        console.log('Update successful:', response.data);
         setIsSuccess(true);
         setMessage('Profile updated successfully!');
         setUpdating(false);
@@ -138,6 +133,7 @@ const EditProfile = () => {
         }, 2000);
       })
       .catch(error => {
+        console.error('Update error:', error.response?.data || error);
         const resMessage = (error.response && 
           error.response.data && 
           Object.values(error.response.data).flat().join(' ')) || 

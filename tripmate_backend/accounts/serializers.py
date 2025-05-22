@@ -6,11 +6,13 @@ from django.contrib.auth.password_validation import validate_password
 from .models import UserProfile, ContactSubmission
 from django.core.exceptions import ValidationError as DjangoValidationError
 
+# In accounts/serializers.py - update UserProfileSerializer
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ('bio', 'profile_picture', 'location', 'phone_number')
-
+        read_only_fields = () # Empty tuple allows all fields to be updated
+        
 class UserSerializer(serializers.ModelSerializer):
     profile = UserProfileSerializer(required=False)
     

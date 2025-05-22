@@ -64,7 +64,7 @@ class LogoutView(APIView):
         logout(request)
         return Response({"detail": "Successfully logged out."}, status=status.HTTP_200_OK)
 
-# User Profile View - Updated to handle partial updates and email restriction
+# In accounts/views.py - replace the entire UserProfileView class
 class UserProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = UserSerializer
     permission_classes = [IsOwnerOrAdmin]
@@ -75,41 +75,38 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
     def patch(self, request, *args, **kwargs):
         user = self.get_object()
         
-        # Remove email from the request data if it was sent
-        if 'email' in request.data:
-            return Response(
-                {"email": ["Email cannot be changed after registration."]},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        # Handle profile data, only update fields that were sent
-        profile_data = {}
-        for key in request.data:
-            if key.startswith('profile.'):
-                profile_field = key.split('.')[1]
-                profile_data[profile_field] = request.data.get(key)
-        
-        # Update user data
-        user_data = {}
+        # Handle user fields update
+        user_updated = False
         for field in ['first_name', 'last_name', 'username']:
-            if field in request.data:
-                user_data[field] = request.data.get(field)
+            if field in request.data and request.data[field]:
+                setattr(user, field, request.data[field])
+                user_updated = True
         
-        if user_data:
-            for key, value in user_data.items():
-                setattr(user, key, value)
+        if user_updated:
             user.save()
         
-        # Update profile if there's profile data
-        if profile_data and hasattr(user, 'profile'):
-            profile = user.profile
-            for key, value in profile_data.items():
-                if key == 'profile_picture' and value:
-                    profile.profile_picture = value
-                elif key in ['bio', 'location', 'phone_number']:
-                    setattr(profile, key, value)
-            profile.save()
+        # Handle profile fields update
+        profile_fields = {
+            'bio': request.data.get('bio'),
+            'location': request.data.get('location'),
+            'phone_number': request.data.get('phone_number'),
+        }
         
+        profile_updated = False
+        for field, value in profile_fields.items():
+            if value is not None:  # Only update if a value was provided
+                setattr(user.profile, field, value)
+                profile_updated = True
+        
+        # Handle profile picture upload
+        if 'profile_picture' in request.FILES:
+            user.profile.profile_picture = request.FILES['profile_picture']
+            profile_updated = True
+        
+        if profile_updated:
+            user.profile.save()
+        
+        # Return the updated user data
         return Response(UserSerializer(user).data)
 
 # Change Password
@@ -197,13 +194,15 @@ class PasswordResetRequestView(APIView):
 class PasswordResetVerifyView(APIView):
     permission_classes = [AllowAny]
     
-    # Update this method in your PasswordResetRequestView class
+    # In accounts/views.py - Update the post method in PasswordResetVerifyView
     def post(self, request):
         email = request.data.get('email')
+        token = request.data.get('token')
+        new_password = request.data.get('new_password')
         
-        if not email:
+        if not email or not token or not new_password:
             return Response(
-                {"email": ["Please provide your email address."]},
+                {"error": "Please provide email, token, and new password."},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
@@ -212,37 +211,41 @@ class PasswordResetVerifyView(APIView):
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            # Don't reveal that the user doesn't exist for security reasons
             return Response(
-                {"detail": "If an account with this email exists, a password reset code has been sent."},
-                status=status.HTTP_200_OK
+                {"error": "Invalid email address."},
+                status=status.HTTP_400_BAD_REQUEST
             )
         
-        # Generate a reset token
-        token_obj = PasswordResetToken.generate_token(user)
+        # Check if there's a valid token for this user
+        try:
+            token_obj = PasswordResetToken.objects.filter(
+                user=user, 
+                token=token, 
+                is_used=False
+            ).latest('created_at')
+            
+            if not token_obj.is_valid():
+                return Response(
+                    {"error": "Token has expired. Please request a new one."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+                
+        except PasswordResetToken.DoesNotExist:
+            return Response(
+                {"error": "Invalid token."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         
-        # Prepare the HTML email
-        context = {
-            'user': user,
-            'token': token_obj.token
-        }
-        html_message = render_to_string('password_reset_email.html', context)
-        plain_message = strip_tags(html_message)
+        # Token is valid, set the new password
+        user.set_password(new_password)
+        user.save()
         
-        # Send the email
-        subject = 'TripMate Password Reset Code'
-        
-        send_mail(
-            subject,
-            plain_message,  # Text version
-            None,  # Use DEFAULT_FROM_EMAIL from settings
-            [email],
-            html_message=html_message,  # HTML version
-            fail_silently=False,
-        )
+        # Mark the token as used
+        token_obj.is_used = True
+        token_obj.save()
         
         return Response(
-            {"detail": "If an account with this email exists, a password reset code has been sent."},
+            {"detail": "Password has been reset successfully."},
             status=status.HTTP_200_OK
         )
     
