@@ -17,6 +17,7 @@ import ContactForm from './components/user/ContactForm';
 import PrivateRoute from './components/common/PrivateRoute';
 import AdminRoute from './components/common/AdminRoute';
 import AuthService from './services/auth.service';
+import UserService from './services/user.service';
 import './App.css';
 
 function App() {
@@ -26,7 +27,18 @@ function App() {
   useEffect(() => {
     const user = AuthService.getCurrentUser();
     if (user) {
-      setCurrentUser(user);
+      // Fetch fresh user data to get updated profile picture
+      UserService.getUserProfile()
+        .then(response => {
+          // Update the stored user data with fresh profile data
+          const updatedUser = { ...user, ...response.data };
+          localStorage.setItem('user', JSON.stringify(updatedUser));
+          setCurrentUser(updatedUser);
+        })
+        .catch(error => {
+          console.error('Error fetching user profile:', error);
+          setCurrentUser(user); // Fallback to stored user data
+        });
     }
     setLoading(false);
   }, []);
@@ -34,6 +46,13 @@ function App() {
   const logOut = () => {
     AuthService.logout();
     setCurrentUser(null);
+  };
+
+  const updateCurrentUser = (updatedUserData) => {
+    // Update the current user state and localStorage
+    const updatedUser = { ...currentUser, ...updatedUserData };
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+    setCurrentUser(updatedUser);
   };
 
   if (loading) {
@@ -64,7 +83,7 @@ function App() {
             } />
             <Route path="/edit-profile" element={
               <PrivateRoute>
-                <EditProfile currentUser={currentUser} />
+                <EditProfile currentUser={currentUser} updateCurrentUser={updateCurrentUser} />
               </PrivateRoute>
             } />
             <Route path="/change-password" element={

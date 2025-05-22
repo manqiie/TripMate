@@ -1,4 +1,4 @@
-// src/services/api.js
+// src/services/api.js - Updated to handle file uploads
 
 import axios from 'axios';
 
@@ -18,6 +18,13 @@ apiClient.interceptors.request.use(config => {
   if (token) {
     config.headers.Authorization = `Token ${token}`;
   }
+  
+  // If the request data is FormData, don't set Content-Type
+  // Let the browser set it automatically with the boundary
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+  }
+  
   return config;
 });
 

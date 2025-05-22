@@ -1,4 +1,4 @@
-// src/components/user/Profile.jsx
+// src/components/user/Profile.jsx - Fixed profile picture sizing
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import UserService from '../../services/user.service';
@@ -67,15 +67,29 @@ const Profile = ({ currentUser }) => {
           <div className="card-body text-center">
             <div className="profile-header">
               {profile.profile && profile.profile.profile_picture ? (
-                <img 
-                  src={profile.profile.profile_picture} 
-                  alt="Profile" 
-                  className="profile-avatar"
+                <div 
+                  className="mx-auto mb-3 border border-3 border-light shadow-sm"
+                  style={{
+                    width: "350px",
+                    height: "350px",
+                    backgroundImage: `url(${profile.profile.profile_picture})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    backgroundRepeat: "no-repeat"
+                  }}
                 />
               ) : (
-                <div className="profile-placeholder">
-                  {profile.first_name && profile.first_name[0]}
-                  {profile.last_name && profile.last_name[0]}
+                <div 
+                  className="mx-auto mb-3 rounded-circle bg-secondary d-flex align-items-center justify-content-center border border-3 border-light shadow-sm"
+                  style={{ 
+                    width: "150px", 
+                    height: "150px" 
+                  }}
+                >
+                  <span className="text-white" style={{ fontSize: "3rem", fontWeight: "600" }}>
+                    {profile.first_name && profile.first_name[0]}
+                    {profile.last_name && profile.last_name[0]}
+                  </span>
                 </div>
               )}
               <h3 className="mb-0">{profile.first_name} {profile.last_name}</h3>

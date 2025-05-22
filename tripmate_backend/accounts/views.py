@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404
 from .models import UserProfile, ContactSubmission
 from .serializers import (
     UserSerializer, RegisterSerializer, UserProfileSerializer,
-    ChangePasswordSerializer, ContactSubmissionSerializer
+    ChangePasswordSerializer, ContactSubmissionSerializer, LoginSerializer
 )
 from .permissions import IsOwnerOrAdmin, IsAdmin
 
@@ -44,19 +44,31 @@ class RegisterView(generics.CreateAPIView):
             "token": token.key
         })
 
-# Custom Login View
-class LoginView(ObtainAuthToken):
+
+# Custom Login View - Updated to handle email/username
+class LoginView(APIView):
+    permission_classes = [permissions.AllowAny]
+    
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data, context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({
-            'token': token.key,
-            'user_id': user.pk,
-            'email': user.email,
-            'username': user.username
-        })
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.validated_data['user']
+            token, created = Token.objects.get_or_create(user=user)
+            
+            # Return complete user data including profile
+            user_serializer = UserSerializer(user)
+            return Response({
+                'token': token.key,
+                'user_id': user.pk,
+                'email': user.email,
+                'username': user.username,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'is_staff': user.is_staff,
+                'profile': user_serializer.data.get('profile', {})
+            })
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # Logout View
 class LogoutView(APIView):
@@ -64,7 +76,7 @@ class LogoutView(APIView):
         logout(request)
         return Response({"detail": "Successfully logged out."}, status=status.HTTP_200_OK)
 
-# In accounts/views.py - replace the entire UserProfileView class
+# Updated UserProfileView to fix profile picture upload
 class UserProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = UserSerializer
     permission_classes = [IsOwnerOrAdmin]
@@ -85,6 +97,10 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
         if user_updated:
             user.save()
         
+        # Ensure user has a profile
+        if not hasattr(user, 'profile'):
+            UserProfile.objects.create(user=user)
+        
         # Handle profile fields update
         profile_fields = {
             'bio': request.data.get('bio'),
@@ -98,16 +114,20 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
                 setattr(user.profile, field, value)
                 profile_updated = True
         
-        # Handle profile picture upload
+        # Handle profile picture upload - FIXED
         if 'profile_picture' in request.FILES:
+            print(f"Profile picture received: {request.FILES['profile_picture']}")
             user.profile.profile_picture = request.FILES['profile_picture']
             profile_updated = True
+            print(f"Profile picture set to: {user.profile.profile_picture}")
         
         if profile_updated:
             user.profile.save()
+            print(f"Profile saved. Profile picture path: {user.profile.profile_picture}")
         
         # Return the updated user data
-        return Response(UserSerializer(user).data)
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
 
 # Change Password
 class ChangePasswordView(generics.UpdateAPIView):

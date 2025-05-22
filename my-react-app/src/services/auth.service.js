@@ -1,4 +1,4 @@
-// src/services/auth.service.js
+// src/services/auth.service.js - Updated login method
 
 import apiClient from './api';
 
@@ -14,9 +14,9 @@ const AuthService = {
     });
   },
 
-  login: (username, password) => {
+  login: (username_or_email, password) => {
     return apiClient.post('accounts/login/', {
-      username,
+      username_or_email,
       password
     }).then(response => {
       if (response.data.token) {
@@ -44,7 +44,7 @@ const AuthService = {
     return user && user.is_staff;
   },
   
-  // New password reset methods
+  // Password reset methods
   requestPasswordReset: (email) => {
     return apiClient.post('accounts/password-reset-request/', { email });
   },

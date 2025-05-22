@@ -3,16 +3,31 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth import authenticate
+from rest_framework import serializers
 from .models import UserProfile, ContactSubmission
 from django.core.exceptions import ValidationError as DjangoValidationError
 
-# In accounts/serializers.py - update UserProfileSerializer
+
 class UserProfileSerializer(serializers.ModelSerializer):
+    # Add explicit handling for profile_picture
+    profile_picture = serializers.ImageField(required=False, allow_null=True)
+    
     class Meta:
         model = UserProfile
         fields = ('bio', 'profile_picture', 'location', 'phone_number')
-        read_only_fields = () # Empty tuple allows all fields to be updated
         
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        
+        # Make sure profile_picture URL is absolute
+        if representation.get('profile_picture'):
+            request = self.context.get('request')
+            if request:
+                representation['profile_picture'] = request.build_absolute_uri(representation['profile_picture'])
+        
+        return representation
+
 class UserSerializer(serializers.ModelSerializer):
     profile = UserProfileSerializer(required=False)
     
@@ -58,6 +73,44 @@ class RegisterSerializer(serializers.ModelSerializer):
         validated_data.pop('password2')
         user = User.objects.create_user(**validated_data)
         return user
+
+class LoginSerializer(serializers.Serializer):
+    username_or_email = serializers.CharField()
+    password = serializers.CharField()
+
+    def validate(self, attrs):
+        username_or_email = attrs.get('username_or_email')
+        password = attrs.get('password')
+
+        if username_or_email and password:
+            # Try to find user by username first
+            user = None
+            try:
+                if '@' in username_or_email:
+                    # It's an email
+                    user_obj = User.objects.get(email=username_or_email)
+                    username = user_obj.username
+                else:
+                    # It's a username
+                    username = username_or_email
+                
+                user = authenticate(username=username, password=password)
+            except User.DoesNotExist:
+                pass
+
+            if user:
+                if user.is_active:
+                    attrs['user'] = user
+                    return attrs
+                else:
+                    raise serializers.ValidationError('User account is disabled.')
+            else:
+                raise serializers.ValidationError('Unable to log in with provided credentials.')
+        else:
+            raise serializers.ValidationError('Must include "username_or_email" and "password".')
+
+        return attrs
+
 
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)

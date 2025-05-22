@@ -1,4 +1,4 @@
-// src/components/auth/Login.jsx
+// src/components/auth/Login.jsx - Updated to accept email or username
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthService from '../../services/auth.service';
@@ -6,14 +6,14 @@ import { FaSignInAlt, FaUser, FaLock, FaUserPlus } from 'react-icons/fa';
 
 const Login = ({ setCurrentUser }) => {
   const [formData, setFormData] = useState({
-    username: '',
+    username_or_email: '',
     password: ''
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
-  const { username, password } = formData;
+  const { username_or_email, password } = formData;
 
   const onChange = e => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,15 +24,17 @@ const Login = ({ setCurrentUser }) => {
     setLoading(true);
     setMessage('');
 
-    AuthService.login(username, password)
+    AuthService.login(username_or_email, password)
       .then(data => {
         setCurrentUser(data);
         navigate('/profile');
       })
       .catch(error => {
+        console.error('Login error:', error);
         const resMessage = (error.response && 
           error.response.data && 
-          error.response.data.non_field_errors) || 
+          (error.response.data.non_field_errors || 
+           Object.values(error.response.data).flat().join(' '))) || 
           error.message || 
           error.toString();
         
@@ -63,17 +65,17 @@ const Login = ({ setCurrentUser }) => {
             
             <form onSubmit={onSubmit}>
               <div className="mb-3">
-                <label htmlFor="username" className="form-label">
-                  <FaUser className="me-2" />Username
+                <label htmlFor="username_or_email" className="form-label">
+                  <FaUser className="me-2" />Username or Email
                 </label>
                 <input
                   type="text"
                   className="form-control form-control-lg"
-                  id="username"
-                  name="username"
-                  value={username}
+                  id="username_or_email"
+                  name="username_or_email"
+                  value={username_or_email}
                   onChange={onChange}
-                  placeholder="Enter your username"
+                  placeholder="Enter your username or email"
                   required
                 />
               </div>
