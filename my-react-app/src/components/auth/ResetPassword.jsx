@@ -1,8 +1,8 @@
-// src/components/auth/ResetPassword.jsx
+// src/components/auth/ResetPassword.jsx - Fixed to prevent blank pages
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import apiClient from '../../services/api';
-import { FaEnvelope, FaKey, FaArrowLeft } from 'react-icons/fa';
+import { FaEnvelope, FaKey, FaArrowLeft, FaCheck } from 'react-icons/fa';
 
 const ResetPassword = () => {
   const [email, setEmail] = useState('');
@@ -12,7 +12,7 @@ const ResetPassword = () => {
   const [message, setMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState(1); // 1 = email input, 2 = token verification, 3 = new password
+  const [step, setStep] = useState(1); // 1 = email input, 2 = token verification, 3 = success
   const navigate = useNavigate();
 
   const handleRequestToken = e => {
@@ -61,9 +61,9 @@ const ResetPassword = () => {
         setStep(3);
         setLoading(false);
         
-        // Redirect to login after 3 seconds
+        // Auto redirect after 3 seconds, but don't force it
         setTimeout(() => {
-          navigate('/login');
+          navigate('/login', { replace: true });
         }, 3000);
       })
       .catch(error => {
@@ -75,6 +75,10 @@ const ResetPassword = () => {
         setIsSuccess(false);
         setLoading(false);
       });
+  };
+
+  const handleGoToLogin = () => {
+    navigate('/login', { replace: true });
   };
 
   const renderStepOne = () => (
@@ -139,6 +143,7 @@ const ResetPassword = () => {
           onChange={e => setNewPassword(e.target.value)}
           placeholder="Enter new password"
           required
+          minLength="6"
         />
       </div>
       
@@ -154,6 +159,7 @@ const ResetPassword = () => {
           onChange={e => setConfirmPassword(e.target.value)}
           placeholder="Confirm new password"
           required
+          minLength="6"
         />
       </div>
       
@@ -169,6 +175,22 @@ const ResetPassword = () => {
           )}
         </button>
       </div>
+      
+      <div className="d-grid">
+        <button 
+          type="button" 
+          className="btn btn-outline-secondary"
+          onClick={() => {
+            setStep(1);
+            setMessage('');
+            setToken('');
+            setNewPassword('');
+            setConfirmPassword('');
+          }}
+        >
+          Back to Email Step
+        </button>
+      </div>
     </form>
   );
 
@@ -179,11 +201,22 @@ const ResetPassword = () => {
           <FaCheck size={40} />
         </div>
       </div>
-      <h4>Password Reset Complete!</h4>
-      <p>Your password has been reset successfully. You will be redirected to the login page shortly.</p>
-      <Link to="/login" className="btn btn-primary">
-        Go to Login
-      </Link>
+      <h4 className="text-success mb-3">Password Reset Complete!</h4>
+      <p className="mb-4">Your password has been reset successfully. You can now login with your new password.</p>
+      <div className="d-grid gap-2">
+        <button 
+          onClick={handleGoToLogin}
+          className="btn btn-primary btn-lg"
+        >
+          Go to Login Now
+        </button>
+        <Link to="/" className="btn btn-outline-secondary">
+          Back to Home
+        </Link>
+      </div>
+      <p className="text-muted mt-3 small">
+        You will be automatically redirected to login in a few seconds...
+      </p>
     </div>
   );
 
@@ -192,7 +225,11 @@ const ResetPassword = () => {
       <div className="col-md-8 col-lg-6">
         <div className="card shadow-sm">
           <div className="card-header bg-primary text-white text-center py-3">
-            <h2 className="mb-0">Reset Password</h2>
+            <h2 className="mb-0">
+              {step === 1 && 'Reset Password'}
+              {step === 2 && 'Verify Code & Set New Password'}
+              {step === 3 && 'Success!'}
+            </h2>
           </div>
           <div className="card-body p-4">
             {message && (
@@ -204,6 +241,12 @@ const ResetPassword = () => {
             {step === 1 && (
               <p className="text-center text-muted mb-4">
                 Enter the email address associated with your account, and we'll send you a verification code to reset your password.
+              </p>
+            )}
+            
+            {step === 2 && (
+              <p className="text-center text-muted mb-4">
+                Check your email for the verification code and create your new password below.
               </p>
             )}
             

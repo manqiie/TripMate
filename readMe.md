@@ -6,7 +6,6 @@ python -m venv venv
  venv\Scripts\activate
 # On macOS/Linux
 source venv/bin/activate
-
 # If you get an execution policy error, fix it with:
 Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 
@@ -25,7 +24,7 @@ New-Item -Path ".gitignore" -ItemType "file"
 Add-Content -Path ".gitignore" -Value "venv/`nenv/`n.env/"
 
 
-# run each time when update model
+# run each time when update model (database)
 python manage.py makemigrations accounts
 python manage.py migrate
 

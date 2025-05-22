@@ -1,8 +1,8 @@
-// src/components/user/ContactForm.jsx
+// src/components/user/ContactForm.jsx - Fixed missing imports and better UX
 import React, { useState } from 'react';
 import UserService from '../../services/user.service';
 import AuthService from '../../services/auth.service';
-import { FaPaperPlane, FaUser, FaEnvelope, FaHeading, FaCommentAlt, FaCheck } from 'react-icons/fa';
+import { FaPaperPlane, FaUser, FaEnvelope, FaHeading, FaCommentAlt, FaCheck, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
 
 const ContactForm = () => {
   const currentUser = AuthService.getCurrentUser();
@@ -15,6 +15,7 @@ const ContactForm = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
+  const [showSuccessCard, setShowSuccessCard] = useState(false);
 
   const onChange = e => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -29,12 +30,21 @@ const ContactForm = () => {
       .then(response => {
         setIsSuccess(true);
         setMessage('Your message has been sent successfully. We will get back to you soon!');
+        setShowSuccessCard(true);
+        
+        // Clear form fields except name and email
         setFormData({
           ...formData,
           subject: '',
           message: ''
         });
         setLoading(false);
+        
+        // Hide success message after 5 seconds but keep the form visible
+        setTimeout(() => {
+          setMessage('');
+          setShowSuccessCard(false);
+        }, 5000);
       })
       .catch(error => {
         const resMessage = (error.response && 
@@ -44,13 +54,30 @@ const ContactForm = () => {
           error.toString();
         
         setMessage(resMessage);
+        setIsSuccess(false);
         setLoading(false);
+        
+        // Clear error message after 5 seconds
+        setTimeout(() => {
+          setMessage('');
+        }, 5000);
       });
   };
 
   return (
     <div className="row justify-content-center">
       <div className="col-lg-8">
+        {/* Success Card - shows temporarily */}
+        {showSuccessCard && (
+          <div className="card border-success mb-4">
+            <div className="card-body text-center">
+              <FaCheck className="text-success mb-2" size={40} />
+              <h4 className="text-success">Message Sent Successfully!</h4>
+              <p className="text-muted mb-0">Thank you for contacting us. We'll get back to you soon!</p>
+            </div>
+          </div>
+        )}
+
         <div className="card shadow-sm">
           <div className="card-header bg-primary text-white text-center py-3">
             <h2 className="mb-0 d-flex align-items-center justify-content-center">
