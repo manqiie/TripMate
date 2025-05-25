@@ -14,7 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-# tripmate_backend/urls.py
+# tripmate_backend/urls.py - Updated to include trips
 
 from django.contrib import admin
 from django.urls import path, include
@@ -24,4 +24,15 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/accounts/', include('accounts.urls')),
+    path('api/trips/', include('trips.urls')),  # Add trips URLs
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# Add debug toolbar in development
+if settings.DEBUG:
+    try:
+        import debug_toolbar
+        urlpatterns = [
+            path('__debug__/', include(debug_toolbar.urls)),
+        ] + urlpatterns
+    except ImportError:
+        pass

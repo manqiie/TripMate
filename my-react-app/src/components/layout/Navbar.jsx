@@ -1,7 +1,7 @@
-// src/components/layout/Navbar.jsx - Updated with profile picture and reordered items
+// src/components/layout/Navbar.jsx - Updated with trips navigation
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaPlane, FaUserCircle, FaSignInAlt, FaUserPlus, FaHome, FaTachometerAlt, FaEnvelope, FaSignOutAlt } from 'react-icons/fa';
+import { FaPlane, FaUserCircle, FaSignInAlt, FaUserPlus, FaHome, FaTachometerAlt, FaEnvelope, FaSignOutAlt, FaMapMarkedAlt } from 'react-icons/fa';
 
 const Navbar = ({ currentUser, logOut }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -22,6 +22,10 @@ const Navbar = ({ currentUser, logOut }) => {
 
   const isActive = (path) => {
     return location.pathname === path ? 'active' : '';
+  };
+
+  const isPathActive = (basePath) => {
+    return location.pathname.startsWith(basePath) ? 'active' : '';
   };
 
   // Get user initials for fallback
@@ -62,6 +66,19 @@ const Navbar = ({ currentUser, logOut }) => {
               </Link>
             </li>
             
+            {currentUser && (
+              <li className="nav-item">
+                <Link 
+                  className={`nav-link ${isPathActive('/trips')}`} 
+                  to="/trips"
+                  onClick={closeMenu}
+                >
+                  <FaMapMarkedAlt className="me-2" />
+                  My Trips
+                </Link>
+              </li>
+            )}
+            
             <li className="nav-item">
               <Link 
                 className={`nav-link ${isActive('/contact')}`} 
@@ -88,7 +105,7 @@ const Navbar = ({ currentUser, logOut }) => {
                 {currentUser.is_staff && (
                   <li className="nav-item">
                     <Link 
-                      className={`nav-link ${isActive('/admin')}`} 
+                      className={`nav-link ${isPathActive('/admin')}`} 
                       to="/admin"
                       onClick={closeMenu}
                     >

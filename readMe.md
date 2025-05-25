@@ -12,6 +12,7 @@ Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 # Install dependencies
 pip install Django djangorestframework django-cors-headers djangorestframework-simplejwt python-dotenv Pillow mysqlclient
+pip install django-extensions googlemaps pillow drf-nested-routers
 
 <!-- # put venv to gitignore (as this folder is very large, avoid to push this to github)
 New-Item -Path ".gitignore" -ItemType "file"
@@ -26,8 +27,8 @@ cd tripmate_backend
 python manage.py startapp accounts
 / python manage.py startapp trips
 
-# run each time when update model (database)
-python manage.py makemigrations accounts
+# run each time when create/ update model (database)
+python manage.py makemigrations trips
 python manage.py migrate
 
 # Create superuser for admin access

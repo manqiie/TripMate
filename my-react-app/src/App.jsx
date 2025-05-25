@@ -1,3 +1,4 @@
+// src/App.jsx - Updated with trip routes
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
@@ -14,6 +15,13 @@ import AdminUserList from './components/admin/AdminUserList';
 import AdminUserEdit from './components/admin/AdminUserEdit';
 import AdminContactList from './components/admin/AdminContactList';
 import ContactForm from './components/user/ContactForm';
+
+// Trip components
+import TripList from './components/trips/TripList';
+import TripCreate from './components/trips/TripCreate';
+import TripDetail from './components/trips/TripDetail';
+import TripEdit from './components/trips/TripEdit';
+
 import PrivateRoute from './components/common/PrivateRoute';
 import AdminRoute from './components/common/AdminRoute';
 import AuthService from './services/auth.service';
@@ -89,6 +97,28 @@ function App() {
             <Route path="/change-password" element={
               <PrivateRoute>
                 <ChangePassword />
+              </PrivateRoute>
+            } />
+            
+            {/* Trip Routes */}
+            <Route path="/trips" element={
+              <PrivateRoute>
+                <TripList />
+              </PrivateRoute>
+            } />
+            <Route path="/trips/new" element={
+              <PrivateRoute>
+                <TripCreate />
+              </PrivateRoute>
+            } />
+            <Route path="/trips/:id" element={
+              <PrivateRoute>
+                <TripDetail />
+              </PrivateRoute>
+            } />
+            <Route path="/trips/:id/edit" element={
+              <PrivateRoute>
+                <TripEdit />
               </PrivateRoute>
             } />
             
