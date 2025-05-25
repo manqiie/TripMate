@@ -12,7 +12,8 @@ Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 # Install dependencies
 pip install Django djangorestframework django-cors-headers djangorestframework-simplejwt python-dotenv Pillow mysqlclient
-pip install django-extensions googlemaps pillow drf-nested-routers
+pip install googlemaps django-extensions pillow drf-nested-routers
+
 
 <!-- # put venv to gitignore (as this folder is very large, avoid to push this to github)
 New-Item -Path ".gitignore" -ItemType "file"
@@ -28,7 +29,7 @@ python manage.py startapp accounts
 / python manage.py startapp trips
 
 # run each time when create/ update model (database)
-python manage.py makemigrations trips
+python manage.py makemigrations 
 python manage.py migrate
 
 # Create superuser for admin access
@@ -45,7 +46,7 @@ npm create vite@latest my-react-app
 variant:javascript
 
 # install dependencies
-cd my react-app
+cd my-react-app
 npm install
 npm install react-router-dom
 npm install axios
