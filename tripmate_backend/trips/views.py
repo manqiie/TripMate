@@ -53,19 +53,36 @@ class TripViewSet(viewsets.ModelViewSet):
             return TripCreateSerializer
         return TripSerializer
     
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-    
-    @action(detail=True, methods=['post'])
-    def add_destination(self, request, pk=None):
-        """Add a destination to the trip"""
-        trip = self.get_object()
-        serializer = AddDestinationSerializer(data=request.data, context={'trip': trip})
+    def create(self, request, *args, **kwargs):
+        """Override create method with debugging"""
+        logger.info(f"Trip creation request received")
+        logger.info(f"Request method: {request.method}")
+        logger.info(f"Request data: {request.data}")
+        logger.info(f"Request user: {request.user}")
+        logger.info(f"Is authenticated: {request.user.is_authenticated}")
         
+        # Check if user is authenticated
+        if not request.user.is_authenticated:
+            return Response(
+                {'error': 'Authentication required'}, 
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
+        serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            destination = serializer.save()
-            return Response(TripDestinationSerializer(destination).data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            trip = serializer.save(user=request.user)
+            logger.info(f"Trip created successfully with ID: {trip.id}")
+            return Response(
+                TripSerializer(trip, context={'request': request}).data,
+                status=status.HTTP_201_CREATED
+            )
+        else:
+            logger.error(f"Trip creation failed: {serializer.errors}")
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def perform_create(self, serializer):
+        logger.info(f"Performing create for user: {self.request.user}")
+        serializer.save(user=self.request.user)
     
     @action(detail=True, methods=['post'])
     def add_destinations_bulk(self, request, pk=None):

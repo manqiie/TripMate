@@ -1,8 +1,8 @@
-// src/services/api.js - Updated to handle file uploads
+// src/services/api.js - Fixed API configuration
 
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/api/';
+const API_URL = 'http://localhost:8000/api/'; // Remove the 'trips/' part
 
 // Create axios instance
 const apiClient = axios.create({

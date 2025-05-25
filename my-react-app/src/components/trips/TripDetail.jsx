@@ -1,4 +1,4 @@
-// src/components/trips/TripDetail.jsx
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import TripService from '../../services/trip.service';
@@ -8,7 +8,7 @@ import MediaUpload from './MediaUpload';
 import { 
   FaEdit, FaShare, FaMapMarkedAlt, FaRoute, FaImage, FaPlus, 
   FaCalendarAlt, FaMapMarkerAlt, FaClock, FaTrash, FaEye, FaUpload,
-  FaSpinner, FaOptimize, FaSave
+  FaSpinner, FaSave
 } from 'react-icons/fa';
 
 const TripDetail = () => {
@@ -31,17 +31,18 @@ const TripDetail = () => {
   const [map, setMap] = useState(null);
   const [directionsService, setDirectionsService] = useState(null);
   const [directionsRenderer, setDirectionsRenderer] = useState(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
 
   useEffect(() => {
     fetchTripData();
-    initializeGoogleMaps();
+    loadGoogleMapsScript();
   }, [id]);
 
   useEffect(() => {
-    if (map && destinations.length > 0) {
+    if (mapLoaded && destinations.length > 0 && map) {
       displayRoute();
     }
-  }, [map, destinations]);
+  }, [mapLoaded, map, destinations]);
 
   const fetchTripData = async () => {
     try {
@@ -57,13 +58,53 @@ const TripDetail = () => {
       setMedia(mediaResponse.data);
       setLoading(false);
     } catch (error) {
-      setError('Failed to fetch trip data');
+      console.error("Error fetching trip data:", error);
+      setError('Failed to fetch trip data. Please try again.');
       setLoading(false);
     }
   };
 
-  const initializeGoogleMaps = () => {
+  const loadGoogleMapsScript = () => {
+    // Check if Google Maps API is already loaded
     if (window.google && window.google.maps) {
+      setMapLoaded(true);
+      return;
+    }
+
+    // Create script element to load Google Maps API
+    const googleMapScript = document.createElement('script');
+    const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY || 'AIzaSyCvEVHX8NeeHlZlFt1yzw8iwJC-WfjjaKA';
+    googleMapScript.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+    googleMapScript.async = true;
+    googleMapScript.defer = true;
+    
+    // Handle script load event
+    googleMapScript.addEventListener('load', () => {
+      console.log("Google Maps API loaded successfully");
+      setMapLoaded(true);
+    });
+    
+    // Handle script error
+    googleMapScript.addEventListener('error', () => {
+      console.error('Failed to load Google Maps API');
+      setError('Failed to load Google Maps API. Please check your internet connection and try again.');
+    });
+    
+    // Append script to document
+    document.head.appendChild(googleMapScript);
+  };
+
+  useEffect(() => {
+    if (mapLoaded && mapRef.current) {
+      initializeMap();
+    }
+  }, [mapLoaded]);
+
+  const initializeMap = () => {
+    if (!mapRef.current || !window.google) return;
+
+    console.log("Initializing Google Maps");
+    try {
       const mapInstance = new window.google.maps.Map(mapRef.current, {
         zoom: 10,
         center: { lat: 37.7749, lng: -122.4194 }, // Default to San Francisco
@@ -75,90 +116,110 @@ const TripDetail = () => {
       const directionsServiceInstance = new window.google.maps.DirectionsService();
       const directionsRendererInstance = new window.google.maps.DirectionsRenderer({
         draggable: true,
-        panel: document.getElementById('directionsPanel')
+        map: mapInstance
       });
-
-      directionsRendererInstance.setMap(mapInstance);
       
       setMap(mapInstance);
       setDirectionsService(directionsServiceInstance);
       setDirectionsRenderer(directionsRendererInstance);
       googleMapRef.current = mapInstance;
-    } else {
-      // Load Google Maps API if not already loaded
-      const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}&libraries=places`;
-      script.onload = initializeGoogleMaps;
-      document.head.appendChild(script);
+      
+      console.log("Map initialized successfully");
+    } catch (err) {
+      console.error("Error initializing map:", err);
+      setError('Failed to initialize Google Maps. Please try refreshing the page.');
     }
   };
 
   const displayRoute = () => {
     if (!map || !directionsService || !directionsRenderer || destinations.length === 0) {
+      console.log("Cannot display route: missing requirements");
       return;
     }
 
-    // Clear existing route
-    directionsRenderer.setDirections({ routes: [] });
+    console.log("Displaying route for", destinations.length, "destinations");
 
-    if (destinations.length === 1) {
-      // Single destination - just show marker
-      const marker = new window.google.maps.Marker({
-        position: { lat: destinations[0].latitude, lng: destinations[0].longitude },
-        map: map,
-        title: destinations[0].name
-      });
+    try {
+      // Clear existing route
+      directionsRenderer.setDirections({ routes: [] });
+
+      if (destinations.length === 1) {
+        // Single destination - just show marker
+        new window.google.maps.Marker({
+          position: { lat: destinations[0].latitude, lng: destinations[0].longitude },
+          map: map,
+          title: destinations[0].name
+        });
+        
+        map.setCenter({ lat: destinations[0].latitude, lng: destinations[0].longitude });
+        map.setZoom(15);
+        return;
+      }
+
+      // Multiple destinations - show route
+      const sortedDestinations = [...destinations].sort((a, b) => a.order_index - b.order_index);
       
-      map.setCenter({ lat: destinations[0].latitude, lng: destinations[0].longitude });
-      map.setZoom(15);
-      return;
-    }
+      if (sortedDestinations.length >= 2) {
+        const origin = { lat: sortedDestinations[0].latitude, lng: sortedDestinations[0].longitude };
+        const destination = { 
+          lat: sortedDestinations[sortedDestinations.length - 1].latitude, 
+          lng: sortedDestinations[sortedDestinations.length - 1].longitude 
+        };
+        
+        const waypoints = sortedDestinations.slice(1, -1).map(dest => ({
+          location: { lat: dest.latitude, lng: dest.longitude },
+          stopover: true
+        }));
 
-    // Multiple destinations - show route
-    const sortedDestinations = [...destinations].sort((a, b) => a.order_index - b.order_index);
-    
-    if (sortedDestinations.length >= 2) {
-      const origin = { lat: sortedDestinations[0].latitude, lng: sortedDestinations[0].longitude };
-      const destination = { 
-        lat: sortedDestinations[sortedDestinations.length - 1].latitude, 
-        lng: sortedDestinations[sortedDestinations.length - 1].longitude 
-      };
-      
-      const waypoints = sortedDestinations.slice(1, -1).map(dest => ({
-        location: { lat: dest.latitude, lng: dest.longitude },
-        stopover: true
-      }));
+        const request = {
+          origin: origin,
+          destination: destination,
+          waypoints: waypoints,
+          travelMode: window.google.maps.TravelMode.DRIVING,
+          unitSystem: window.google.maps.UnitSystem.METRIC,
+          avoidTolls: true
+        };
 
-      const request = {
-        origin: origin,
-        destination: destination,
-        waypoints: waypoints,
-        travelMode: window.google.maps.TravelMode.DRIVING,
-        unitSystem: window.google.maps.UnitSystem.METRIC,
-        avoidTolls: true
-      };
-
-      directionsService.route(request, (result, status) => {
-        if (status === window.google.maps.DirectionsStatus.OK) {
-          directionsRenderer.setDirections(result);
-        } else {
-          console.error('Directions request failed:', status);
-          // Fallback to showing markers
-          showMarkersOnly();
-        }
-      });
+        directionsService.route(request, (result, status) => {
+          if (status === window.google.maps.DirectionsStatus.OK) {
+            directionsRenderer.setDirections(result);
+          } else {
+            console.error('Directions request failed:', status);
+            // Fallback to showing markers
+            showMarkersOnly();
+          }
+        });
+      }
+    } catch (err) {
+      console.error("Error displaying route:", err);
+      // Fallback to markers if there's an error
+      showMarkersOnly();
     }
   };
 
   const showMarkersOnly = () => {
+    if (!map || destinations.length === 0) return;
+
+    // Clear existing markers
+    if (googleMapRef.current) {
+      googleMapRef.current.clearMarkers && googleMapRef.current.clearMarkers();
+    }
+
+    // Create bounds object to fit map to all markers
+    const bounds = new window.google.maps.LatLngBounds();
+
     destinations.forEach((destination, index) => {
+      const position = { lat: destination.latitude, lng: destination.longitude };
+      
+      // Add marker
       const marker = new window.google.maps.Marker({
-        position: { lat: destination.latitude, lng: destination.longitude },
+        position: position,
         map: map,
         title: destination.name,
         label: (index + 1).toString()
       });
 
+      // Create info window
       const infoWindow = new window.google.maps.InfoWindow({
         content: `
           <div>
@@ -169,18 +230,23 @@ const TripDetail = () => {
         `
       });
 
+      // Add click listener
       marker.addListener('click', () => {
         infoWindow.open(map, marker);
       });
+
+      // Extend bounds to include this marker
+      bounds.extend(position);
     });
 
     // Fit map to show all markers
     if (destinations.length > 0) {
-      const bounds = new window.google.maps.LatLngBounds();
-      destinations.forEach(dest => {
-        bounds.extend({ lat: dest.latitude, lng: dest.longitude });
-      });
       map.fitBounds(bounds);
+      
+      // If only one marker, zoom in appropriately
+      if (destinations.length === 1) {
+        map.setZoom(15);
+      }
     }
   };
 

@@ -1,4 +1,4 @@
-// src/services/trip.service.js
+// src/services/trip.service.js - Fixed with correct endpoints
 
 import apiClient from './api';
 
@@ -9,59 +9,59 @@ const TripService = {
     if (params.status) queryParams.append('status', params.status);
     if (params.search) queryParams.append('search', params.search);
     const queryString = queryParams.toString();
-    return apiClient.get(`trips/${queryString ? `?${queryString}` : ''}`);
+    return apiClient.get(`trips/trips/${queryString ? `?${queryString}` : ''}`);
   },
 
   getTripById: (tripId) => {
-    return apiClient.get(`trips/${tripId}/`);
+    return apiClient.get(`trips/trips/${tripId}/`);
   },
 
   createTrip: (tripData) => {
-    return apiClient.post('trips/', tripData);
+    return apiClient.post('trips/trips/', tripData);
   },
 
   updateTrip: (tripId, tripData) => {
-    return apiClient.patch(`trips/${tripId}/`, tripData);
+    return apiClient.patch(`trips/trips/${tripId}/`, tripData);
   },
 
   deleteTrip: (tripId) => {
-    return apiClient.delete(`trips/${tripId}/`);
+    return apiClient.delete(`trips/trips/${tripId}/`);
   },
 
   duplicateTrip: (tripId) => {
-    return apiClient.post(`trips/${tripId}/duplicate/`);
+    return apiClient.post(`trips/trips/${tripId}/duplicate/`);
   },
 
   // Destination operations
   getTripDestinations: (tripId) => {
-    return apiClient.get(`trips/${tripId}/destinations/`);
+    return apiClient.get(`trips/trips/${tripId}/destinations/`);
   },
 
   addDestination: (tripId, destinationData) => {
-    return apiClient.post(`trips/${tripId}/add_destination/`, destinationData);
+    return apiClient.post(`trips/trips/${tripId}/add_destination/`, destinationData);
   },
 
   addDestinationsBulk: (tripId, destinationsData) => {
-    return apiClient.post(`trips/${tripId}/add_destinations_bulk/`, destinationsData);
+    return apiClient.post(`trips/trips/${tripId}/add_destinations_bulk/`, destinationsData);
   },
 
   updateDestination: (tripId, destinationId, destinationData) => {
-    return apiClient.patch(`trips/${tripId}/destinations/${destinationId}/`, destinationData);
+    return apiClient.patch(`trips/trips/${tripId}/destinations/${destinationId}/`, destinationData);
   },
 
   deleteDestination: (tripId, destinationId) => {
-    return apiClient.delete(`trips/${tripId}/destinations/${destinationId}/`);
+    return apiClient.delete(`trips/trips/${tripId}/destinations/${destinationId}/`);
   },
 
   reorderDestinations: (tripId, destinationIds) => {
-    return apiClient.post(`trips/${tripId}/destinations/reorder/`, {
+    return apiClient.post(`trips/trips/${tripId}/destinations/reorder/`, {
       destination_ids: destinationIds
     });
   },
 
   // Route optimization
   optimizeRoute: (tripId) => {
-    return apiClient.post(`trips/${tripId}/optimize_route/`);
+    return apiClient.post(`trips/trips/${tripId}/optimize_route/`);
   },
 
   // Media operations
@@ -70,7 +70,7 @@ const TripService = {
     if (params.type) queryParams.append('type', params.type);
     if (params.destination) queryParams.append('destination', params.destination);
     const queryString = queryParams.toString();
-    return apiClient.get(`trips/${tripId}/media/${queryString ? `?${queryString}` : ''}`);
+    return apiClient.get(`trips/trips/${tripId}/media/${queryString ? `?${queryString}` : ''}`);
   },
 
   uploadMedia: (tripId, mediaData) => {
@@ -80,7 +80,7 @@ const TripService = {
         formData.append(key, mediaData[key]);
       }
     }
-    return apiClient.post(`trips/${tripId}/upload_media/`, formData, {
+    return apiClient.post(`trips/trips/${tripId}/upload_media/`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -88,16 +88,16 @@ const TripService = {
   },
 
   updateMedia: (tripId, mediaId, mediaData) => {
-    return apiClient.patch(`trips/${tripId}/media/${mediaId}/`, mediaData);
+    return apiClient.patch(`trips/trips/${tripId}/media/${mediaId}/`, mediaData);
   },
 
   deleteMedia: (tripId, mediaId) => {
-    return apiClient.delete(`trips/${tripId}/media/${mediaId}/`);
+    return apiClient.delete(`trips/trips/${tripId}/media/${mediaId}/`);
   },
 
   // Sharing operations
   shareTrip: (tripId, shareData) => {
-    return apiClient.post(`trips/${tripId}/share/`, shareData);
+    return apiClient.post(`trips/trips/${tripId}/share/`, shareData);
   },
 
   getSharedTrip: (shareToken) => {

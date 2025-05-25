@@ -1,4 +1,4 @@
-// src/App.jsx - Updated with trip routes
+
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
@@ -42,13 +42,16 @@ function App() {
           const updatedUser = { ...user, ...response.data };
           localStorage.setItem('user', JSON.stringify(updatedUser));
           setCurrentUser(updatedUser);
+          setLoading(false);
         })
         .catch(error => {
           console.error('Error fetching user profile:', error);
           setCurrentUser(user); // Fallback to stored user data
+          setLoading(false);
         });
+    } else {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   const logOut = () => {
@@ -64,7 +67,13 @@ function App() {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -81,6 +90,7 @@ function App() {
               currentUser ? <Navigate to="/profile" /> : <Register setCurrentUser={setCurrentUser} />
             } />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/reset-password-confirm/:uid/:token" element={<ResetPasswordConfirm />} />
             <Route path="/contact" element={<ContactForm />} />
             
             {/* Protected User Routes */}
