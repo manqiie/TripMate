@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import TripService from '../../services/trip.service';
@@ -8,7 +7,7 @@ import MediaUpload from './MediaUpload';
 import { 
   FaEdit, FaShare, FaMapMarkedAlt, FaRoute, FaImage, FaPlus, 
   FaCalendarAlt, FaMapMarkerAlt, FaClock, FaTrash, FaEye, FaUpload,
-  FaSpinner, FaSave
+  FaSpinner, FaSave, FaExclamationTriangle
 } from 'react-icons/fa';
 
 const TripDetail = () => {
@@ -16,6 +15,7 @@ const TripDetail = () => {
   const navigate = useNavigate();
   const mapRef = useRef(null);
   const googleMapRef = useRef(null);
+  const mapLoadTimeoutRef = useRef(null);
   
   const [trip, setTrip] = useState(null);
   const [destinations, setDestinations] = useState([]);
@@ -32,10 +32,18 @@ const TripDetail = () => {
   const [directionsService, setDirectionsService] = useState(null);
   const [directionsRenderer, setDirectionsRenderer] = useState(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [mapError, setMapError] = useState('');
 
   useEffect(() => {
     fetchTripData();
     loadGoogleMapsScript();
+    
+    // Cleanup function
+    return () => {
+      if (mapLoadTimeoutRef.current) {
+        clearTimeout(mapLoadTimeoutRef.current);
+      }
+    };
   }, [id]);
 
   useEffect(() => {
@@ -47,11 +55,17 @@ const TripDetail = () => {
   const fetchTripData = async () => {
     try {
       setLoading(true);
+      setError('');
+      
+      console.log(`Fetching trip data for ID: ${id}`);
+      
       const [tripResponse, destinationsResponse, mediaResponse] = await Promise.all([
         TripService.getTripById(id),
         TripService.getTripDestinations(id),
         TripService.getTripMedia(id)
       ]);
+      
+      console.log('Trip data fetched successfully:', tripResponse.data);
       
       setTrip(tripResponse.data);
       setDestinations(destinationsResponse.data);
@@ -59,7 +73,22 @@ const TripDetail = () => {
       setLoading(false);
     } catch (error) {
       console.error("Error fetching trip data:", error);
-      setError('Failed to fetch trip data. Please try again.');
+      
+      // More detailed error handling
+      if (error.response) {
+        if (error.response.status === 404) {
+          setError('Trip not found or you do not have access to this trip.');
+        } else if (error.response.status === 401) {
+          setError('You need to be logged in to view this trip.');
+        } else {
+          setError(`Error ${error.response.status}: ${error.response.data?.message || 'Failed to fetch trip data'}`);
+        }
+      } else if (error.request) {
+        setError('Network error: Unable to connect to the server. Please check your internet connection.');
+      } else {
+        setError('An unexpected error occurred while loading the trip.');
+      }
+      
       setLoading(false);
     }
   };
@@ -67,41 +96,79 @@ const TripDetail = () => {
   const loadGoogleMapsScript = () => {
     // Check if Google Maps API is already loaded
     if (window.google && window.google.maps) {
+      console.log("Google Maps API already loaded");
       setMapLoaded(true);
       return;
     }
 
-    // Create script element to load Google Maps API
-    const googleMapScript = document.createElement('script');
-    const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY || 'AIzaSyCvEVHX8NeeHlZlFt1yzw8iwJC-WfjjaKA';
-    googleMapScript.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
-    googleMapScript.async = true;
-    googleMapScript.defer = true;
+    // Check if script is already being loaded
+    const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
+    if (existingScript) {
+      console.log("Google Maps script already exists, waiting for load...");
+      
+      // Set a timeout to check if it loads
+      mapLoadTimeoutRef.current = setTimeout(() => {
+        if (window.google && window.google.maps) {
+          setMapLoaded(true);
+        } else {
+          setMapError('Google Maps API failed to load within timeout period.');
+        }
+      }, 10000); // 10 second timeout
+      
+      return;
+    }
+
+    console.log("Loading Google Maps API script...");
     
-    // Handle script load event
-    googleMapScript.addEventListener('load', () => {
-      console.log("Google Maps API loaded successfully");
-      setMapLoaded(true);
-    });
-    
-    // Handle script error
-    googleMapScript.addEventListener('error', () => {
-      console.error('Failed to load Google Maps API');
-      setError('Failed to load Google Maps API. Please check your internet connection and try again.');
-    });
-    
-    // Append script to document
-    document.head.appendChild(googleMapScript);
+    try {
+      // Get API key from environment variable
+      const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+      
+      if (!apiKey) {
+        console.error('Google Maps API key not found in environment variables');
+        setMapError('Google Maps API key not configured. Please check your environment variables.');
+        return;
+      }
+
+      // Create script element to load Google Maps API
+      const googleMapScript = document.createElement('script');
+      googleMapScript.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+      googleMapScript.async = true;
+      googleMapScript.defer = true;
+      
+      // Handle script load event
+      googleMapScript.addEventListener('load', () => {
+        console.log("Google Maps API loaded successfully");
+        setMapLoaded(true);
+        setMapError('');
+      });
+      
+      // Handle script error
+      googleMapScript.addEventListener('error', (e) => {
+        console.error('Failed to load Google Maps API:', e);
+        setMapError('Failed to load Google Maps API. Please check your API key and internet connection.');
+      });
+      
+      // Append script to document
+      document.head.appendChild(googleMapScript);
+      
+    } catch (error) {
+      console.error('Error creating Google Maps script:', error);
+      setMapError('Error initializing Google Maps.');
+    }
   };
 
   useEffect(() => {
-    if (mapLoaded && mapRef.current) {
+    if (mapLoaded && mapRef.current && !map) {
       initializeMap();
     }
-  }, [mapLoaded]);
+  }, [mapLoaded, map]);
 
   const initializeMap = () => {
-    if (!mapRef.current || !window.google) return;
+    if (!mapRef.current || !window.google) {
+      console.log("Map ref or Google Maps not available");
+      return;
+    }
 
     console.log("Initializing Google Maps");
     try {
@@ -127,13 +194,18 @@ const TripDetail = () => {
       console.log("Map initialized successfully");
     } catch (err) {
       console.error("Error initializing map:", err);
-      setError('Failed to initialize Google Maps. Please try refreshing the page.');
+      setMapError('Failed to initialize Google Maps. Please try refreshing the page.');
     }
   };
 
   const displayRoute = () => {
     if (!map || !directionsService || !directionsRenderer || destinations.length === 0) {
-      console.log("Cannot display route: missing requirements");
+      console.log("Cannot display route: missing requirements", {
+        map: !!map,
+        directionsService: !!directionsService,
+        directionsRenderer: !!directionsRenderer,
+        destinationsCount: destinations.length
+      });
       return;
     }
 
@@ -145,7 +217,7 @@ const TripDetail = () => {
 
       if (destinations.length === 1) {
         // Single destination - just show marker
-        new window.google.maps.Marker({
+        const marker = new window.google.maps.Marker({
           position: { lat: destinations[0].latitude, lng: destinations[0].longitude },
           map: map,
           title: destinations[0].name
@@ -200,10 +272,7 @@ const TripDetail = () => {
   const showMarkersOnly = () => {
     if (!map || destinations.length === 0) return;
 
-    // Clear existing markers
-    if (googleMapRef.current) {
-      googleMapRef.current.clearMarkers && googleMapRef.current.clearMarkers();
-    }
+    console.log("Showing markers only");
 
     // Create bounds object to fit map to all markers
     const bounds = new window.google.maps.LatLngBounds();
@@ -257,6 +326,8 @@ const TripDetail = () => {
     }
 
     setOptimizing(true);
+    setError('');
+    
     try {
       const response = await TripService.optimizeRoute(id);
       if (response.data.success) {
@@ -267,23 +338,24 @@ const TripDetail = () => {
         setError(response.data.error || 'Failed to optimize route');
       }
     } catch (error) {
-      setError('Failed to optimize route');
+      console.error('Route optimization error:', error);
+      setError('Failed to optimize route. Please try again.');
     } finally {
       setOptimizing(false);
     }
   };
 
-  const handleAddDestination = (destination) => {
-    TripService.addDestination(id, destination)
-      .then(() => {
-        setMessage('Destination added successfully!');
-        fetchTripData();
-        setShowPlaceSearch(false);
-        setTimeout(() => setMessage(''), 3000);
-      })
-      .catch(error => {
-        setError('Failed to add destination');
-      });
+  const handleAddDestination = async (destination) => {
+    try {
+      await TripService.addDestination(id, destination);
+      setMessage('Destination added successfully!');
+      fetchTripData();
+      setShowPlaceSearch(false);
+      setTimeout(() => setMessage(''), 3000);
+    } catch (error) {
+      console.error('Add destination error:', error);
+      setError('Failed to add destination. Please try again.');
+    }
   };
 
   const handleDeleteDestination = async (destinationId) => {
@@ -294,7 +366,8 @@ const TripDetail = () => {
         fetchTripData();
         setTimeout(() => setMessage(''), 3000);
       } catch (error) {
-        setError('Failed to remove destination');
+        console.error('Delete destination error:', error);
+        setError('Failed to remove destination. Please try again.');
       }
     }
   };
@@ -310,7 +383,8 @@ const TripDetail = () => {
       setShowMediaUpload(false);
       setTimeout(() => setMessage(''), 3000);
     } catch (error) {
-      setError('Failed to upload media');
+      console.error('Media upload error:', error);
+      setError('Failed to upload media. Please try again.');
     }
   };
 
@@ -324,10 +398,33 @@ const TripDetail = () => {
     );
   }
 
-  if (!trip) {
+  if (error && !trip) {
     return (
       <div className="alert alert-danger" role="alert">
-        Trip not found or access denied.
+        <FaExclamationTriangle className="me-2" />
+        {error}
+        <div className="mt-3">
+          <button onClick={() => fetchTripData()} className="btn btn-outline-danger me-2">
+            Retry
+          </button>
+          <Link to="/trips" className="btn btn-secondary">
+            Back to Trips
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (!trip) {
+    return (
+      <div className="alert alert-warning" role="alert">
+        <FaExclamationTriangle className="me-2" />
+        Trip not found or you don't have access to this trip.
+        <div className="mt-3">
+          <Link to="/trips" className="btn btn-secondary">
+            Back to Trips
+          </Link>
+        </div>
       </div>
     );
   }
@@ -400,12 +497,44 @@ const TripDetail = () => {
               </div>
             </div>
             <div className="card-body p-0">
+              {/* Map Error Display */}
+              {mapError && (
+                <div className="alert alert-warning m-3" role="alert">
+                  <FaExclamationTriangle className="me-2" />
+                  {mapError}
+                  <div className="mt-2">
+                    <button 
+                      onClick={() => {
+                        setMapError('');
+                        loadGoogleMapsScript();
+                      }} 
+                      className="btn btn-sm btn-outline-warning"
+                    >
+                      Retry Loading Maps
+                    </button>
+                  </div>
+                </div>
+              )}
+              
               {/* Google Maps Container */}
               <div 
                 ref={mapRef} 
-                style={{ width: '100%', height: '500px' }}
+                style={{ 
+                  width: '100%', 
+                  height: '500px',
+                  backgroundColor: '#f8f9fa'
+                }}
                 className="rounded-bottom"
-              ></div>
+              >
+                {!mapLoaded && !mapError && (
+                  <div className="d-flex justify-content-center align-items-center h-100">
+                    <div className="text-center">
+                      <FaSpinner className="fa-spin text-primary mb-2" size={24} />
+                      <p className="text-muted">Loading Google Maps...</p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -422,7 +551,7 @@ const TripDetail = () => {
           )}
 
           {/* Route Information */}
-          {trip.total_distance && (
+          {(trip.total_distance || destinations.length > 0) && (
             <div className="card mt-3">
               <div className="card-body">
                 <div className="row text-center">
@@ -431,7 +560,9 @@ const TripDetail = () => {
                     <small className="text-muted">Destinations</small>
                   </div>
                   <div className="col-4">
-                    <h5 className="text-primary">{trip.total_distance.toFixed(1)} km</h5>
+                    <h5 className="text-primary">
+                      {trip.total_distance ? `${trip.total_distance.toFixed(1)} km` : 'N/A'}
+                    </h5>
                     <small className="text-muted">Total Distance</small>
                   </div>
                   <div className="col-4">

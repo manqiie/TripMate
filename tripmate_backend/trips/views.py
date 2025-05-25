@@ -84,6 +84,27 @@ class TripViewSet(viewsets.ModelViewSet):
         logger.info(f"Performing create for user: {self.request.user}")
         serializer.save(user=self.request.user)
     
+    # FIXED: Add destinations endpoint
+    @action(detail=True, methods=['get', 'post'], url_path='destinations')
+    def destinations(self, request, pk=None):
+        """Get or add destinations for the trip"""
+        trip = self.get_object()
+        
+        if request.method == 'GET':
+            destinations = trip.destinations.all().order_by('order_index')
+            serializer = TripDestinationSerializer(destinations, many=True)
+            return Response(serializer.data)
+        
+        elif request.method == 'POST':
+            serializer = AddDestinationSerializer(data=request.data, context={'trip': trip})
+            if serializer.is_valid():
+                destination = serializer.save()
+                return Response(
+                    TripDestinationSerializer(destination).data,
+                    status=status.HTTP_201_CREATED
+                )
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
     @action(detail=True, methods=['post'])
     def add_destinations_bulk(self, request, pk=None):
         """Add multiple destinations to the trip"""
@@ -149,18 +170,24 @@ class TripViewSet(viewsets.ModelViewSet):
             return Response(TripMediaSerializer(media, context={'request': request}).data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    @action(detail=True, methods=['get'])
+    # FIXED: Improved media endpoint
+    @action(detail=True, methods=['get'], url_path='media')
     def media(self, request, pk=None):
         """Get all media for the trip"""
         trip = self.get_object()
-        media = trip.media.filter(is_flagged=False).order_by('-captured_at', '-created_at')
+        media_queryset = trip.media.filter(is_flagged=False).order_by('-captured_at', '-created_at')
         
         # Filter by destination if specified
         destination_id = request.query_params.get('destination')
         if destination_id:
-            media = media.filter(destination_id=destination_id)
+            media_queryset = media_queryset.filter(destination_id=destination_id)
         
-        serializer = TripMediaSerializer(media, many=True, context={'request': request})
+        # Filter by media type if specified
+        media_type = request.query_params.get('type')
+        if media_type:
+            media_queryset = media_queryset.filter(media_type=media_type)
+        
+        serializer = TripMediaSerializer(media_queryset, many=True, context={'request': request})
         return Response(serializer.data)
     
     @action(detail=True, methods=['post'])

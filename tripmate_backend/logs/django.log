@@ -240,3 +240,229 @@ Not Found: /api/trips/accounts/profile/
 "GET /api/trips/accounts/profile/ HTTP/1.1" 404 18323
 C:\Users\Qie\Documents\AUOW\FYP\TripMate\tripmate_backend\trips\views.py changed, reloading.
 Watching for file changes with StatReloader
+Method Not Allowed: /api/trips/
+"POST /api/trips/ HTTP/1.1" 405 41
+Not Found: /api/trips/accounts/profile/
+"GET /api/trips/accounts/profile/ HTTP/1.1" 404 17479
+Not Found: /api/trips/accounts/profile/
+"GET /api/trips/accounts/profile/ HTTP/1.1" 404 17479
+Trip creation request received
+Request method: POST
+Request data: {'title': 's', 'description': 'ss', 'start_date': '2025-05-26', 'end_date': '2025-05-27', 'status': 'planning', 'privacy': 'private'}
+Request user: AAA
+Is authenticated: True
+Trip created successfully with ID: 2
+"POST /api/trips/trips/ HTTP/1.1" 201 494
+"OPTIONS /api/trips/trips/2/ HTTP/1.1" 200 0
+"OPTIONS /api/trips/trips/2/destinations/ HTTP/1.1" 200 0
+"OPTIONS /api/trips/trips/2/ HTTP/1.1" 200 0
+"OPTIONS /api/trips/trips/2/media/ HTTP/1.1" 200 0
+"OPTIONS /api/trips/trips/2/destinations/ HTTP/1.1" 200 0
+"OPTIONS /api/trips/trips/2/media/ HTTP/1.1" 200 0
+"GET /api/trips/trips/2/destinations/ HTTP/1.1" 200 52
+"GET /api/trips/trips/2/ HTTP/1.1" 200 494
+"GET /api/trips/trips/2/media/ HTTP/1.1" 200 2
+"GET /api/trips/trips/2/destinations/ HTTP/1.1" 200 52
+"GET /api/trips/trips/2/media/ HTTP/1.1" 200 2
+"GET /api/trips/trips/2/ HTTP/1.1" 200 494
+Not Found: /api/trips/accounts/profile/
+"GET /api/trips/accounts/profile/ HTTP/1.1" 404 17479
+Not Found: /api/trips/accounts/profile/
+"GET /api/trips/accounts/profile/ HTTP/1.1" 404 17479
+"GET /api/trips/trips/2/destinations/ HTTP/1.1" 200 52
+"GET /api/trips/trips/2/media/ HTTP/1.1" 200 2
+"GET /api/trips/trips/2/destinations/ HTTP/1.1" 200 52
+"GET /api/trips/trips/2/ HTTP/1.1" 200 494
+"GET /api/trips/trips/2/media/ HTTP/1.1" 200 2
+"GET /api/trips/trips/2/ HTTP/1.1" 200 494
+Not Found: /api/trips/accounts/profile/
+"GET /api/trips/accounts/profile/ HTTP/1.1" 404 17479
+Not Found: /api/trips/accounts/profile/
+"GET /api/trips/accounts/profile/ HTTP/1.1" 404 17479
+Not Found: /api/trips/accounts/profile/
+"GET /api/trips/accounts/profile/ HTTP/1.1" 404 17479
+Not Found: /api/trips/accounts/profile/
+"GET /api/trips/accounts/profile/ HTTP/1.1" 404 17479
+Not Found: /api/trips/accounts/profile/
+"GET /api/trips/accounts/profile/ HTTP/1.1" 404 17479
+Not Found: /api/trips/accounts/profile/
+"GET /api/trips/accounts/profile/ HTTP/1.1" 404 17479
+Not Found: /api/trips/accounts/profile/
+"GET /api/trips/accounts/profile/ HTTP/1.1" 404 17479
+Not Found: /api/trips/accounts/profile/
+"GET /api/trips/accounts/profile/ HTTP/1.1" 404 17479
+Not Found: /api/trips/accounts/profile/
+"GET /api/trips/accounts/profile/ HTTP/1.1" 404 17479
+Not Found: /api/trips/accounts/profile/
+"GET /api/trips/accounts/profile/ HTTP/1.1" 404 17479
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"OPTIONS /api/trips/2/ HTTP/1.1" 200 0
+"OPTIONS /api/trips/2/destinations/ HTTP/1.1" 200 0
+"OPTIONS /api/trips/2/media/ HTTP/1.1" 200 0
+"OPTIONS /api/trips/2/ HTTP/1.1" 200 0
+"OPTIONS /api/trips/2/destinations/ HTTP/1.1" 200 0
+"OPTIONS /api/trips/2/media/ HTTP/1.1" 200 0
+Not Found: /api/trips/2/
+"GET /api/trips/2/ HTTP/1.1" 404 17434
+Not Found: /api/trips/2/destinations/
+"GET /api/trips/2/destinations/ HTTP/1.1" 404 17473
+Not Found: /api/trips/2/media/
+"GET /api/trips/2/media/ HTTP/1.1" 404 17452
+Not Found: /api/trips/2/
+"GET /api/trips/2/ HTTP/1.1" 404 17434
+Not Found: /api/trips/2/destinations/
+"GET /api/trips/2/destinations/ HTTP/1.1" 404 17473
+Not Found: /api/trips/2/media/
+"GET /api/trips/2/media/ HTTP/1.1" 404 17452
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/trips/ HTTP/1.1" 200 50
+"GET /api/trips/ HTTP/1.1" 200 50
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+Method Not Allowed: /api/trips/
+"POST /api/trips/ HTTP/1.1" 405 41
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+Trip creation request received
+Request method: POST
+Request data: {'title': 's', 'description': 's', 'start_date': '2025-05-26', 'end_date': '2025-05-26', 'status': 'planning', 'privacy': 'private'}
+Request user: AAA
+Is authenticated: True
+Trip created successfully with ID: 3
+"POST /api/trips/trips/ HTTP/1.1" 201 493
+"OPTIONS /api/trips/trips/3/ HTTP/1.1" 200 0
+"OPTIONS /api/trips/trips/3/destinations/ HTTP/1.1" 200 0
+"OPTIONS /api/trips/trips/3/media/ HTTP/1.1" 200 0
+"OPTIONS /api/trips/trips/3/ HTTP/1.1" 200 0
+"OPTIONS /api/trips/trips/3/media/ HTTP/1.1" 200 0
+"OPTIONS /api/trips/trips/3/destinations/ HTTP/1.1" 200 0
+"GET /api/trips/trips/3/destinations/ HTTP/1.1" 200 52
+"GET /api/trips/trips/3/ HTTP/1.1" 200 493
+"GET /api/trips/trips/3/media/ HTTP/1.1" 200 2
+"GET /api/trips/trips/3/destinations/ HTTP/1.1" 200 52
+"GET /api/trips/trips/3/ HTTP/1.1" 200 493
+"GET /api/trips/trips/3/media/ HTTP/1.1" 200 2
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/trips/trips/2/destinations/ HTTP/1.1" 200 52
+"GET /api/trips/trips/2/media/ HTTP/1.1" 200 2
+"GET /api/trips/trips/2/ HTTP/1.1" 200 494
+"GET /api/trips/trips/2/destinations/ HTTP/1.1" 200 52
+"GET /api/trips/trips/2/media/ HTTP/1.1" 200 2
+"GET /api/trips/trips/2/ HTTP/1.1" 200 494
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/trips/trips/2/destinations/ HTTP/1.1" 200 52
+"GET /api/trips/trips/2/media/ HTTP/1.1" 200 2
+"GET /api/trips/trips/2/ HTTP/1.1" 200 494
+"GET /api/trips/trips/2/destinations/ HTTP/1.1" 200 52
+"GET /api/trips/trips/2/media/ HTTP/1.1" 200 2
+"GET /api/trips/trips/2/ HTTP/1.1" 200 494
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/trips/trips/ HTTP/1.1" 200 1535
+"GET /api/trips/trips/ HTTP/1.1" 200 1535
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/trips/trips/ HTTP/1.1" 200 1535
+"GET /api/trips/trips/ HTTP/1.1" 200 1535
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/trips/trips/3/destinations/ HTTP/1.1" 200 52
+"GET /api/trips/trips/3/ HTTP/1.1" 200 493
+"GET /api/trips/trips/3/media/ HTTP/1.1" 200 2
+"GET /api/trips/trips/3/destinations/ HTTP/1.1" 200 52
+"GET /api/trips/trips/3/media/ HTTP/1.1" 200 2
+"GET /api/trips/trips/3/ HTTP/1.1" 200 493
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+Trip creation request received
+Request method: POST
+Request data: {'title': 'd', 'description': 'd', 'start_date': '2025-05-28', 'end_date': '2025-05-30', 'status': 'planning', 'privacy': 'private'}
+Request user: AAA
+Is authenticated: True
+Trip created successfully with ID: 4
+"POST /api/trips/trips/ HTTP/1.1" 201 493
+"OPTIONS /api/trips/trips/4/ HTTP/1.1" 200 0
+"GET /api/trips/trips/4/ HTTP/1.1" 200 493
+"OPTIONS /api/trips/trips/4/destinations/ HTTP/1.1" 200 0
+"OPTIONS /api/trips/trips/4/media/ HTTP/1.1" 200 0
+"OPTIONS /api/trips/trips/4/destinations/ HTTP/1.1" 200 0
+"OPTIONS /api/trips/trips/4/media/ HTTP/1.1" 200 0
+"GET /api/trips/trips/4/ HTTP/1.1" 200 493
+"GET /api/trips/trips/4/destinations/ HTTP/1.1" 200 52
+"GET /api/trips/trips/4/media/ HTTP/1.1" 200 2
+"GET /api/trips/trips/4/destinations/ HTTP/1.1" 200 52
+"GET /api/trips/trips/4/media/ HTTP/1.1" 200 2
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/trips/trips/4/ HTTP/1.1" 200 493
+"GET /api/trips/trips/4/destinations/ HTTP/1.1" 200 52
+"GET /api/trips/trips/4/media/ HTTP/1.1" 200 2
+"GET /api/trips/trips/4/ HTTP/1.1" 200 493
+"GET /api/trips/trips/4/destinations/ HTTP/1.1" 200 52
+"GET /api/trips/trips/4/media/ HTTP/1.1" 200 2
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/trips/trips/4/ HTTP/1.1" 200 493
+"GET /api/trips/trips/4/destinations/ HTTP/1.1" 200 52
+"GET /api/trips/trips/4/media/ HTTP/1.1" 200 2
+"GET /api/trips/trips/4/ HTTP/1.1" 200 493
+"GET /api/trips/trips/4/destinations/ HTTP/1.1" 200 52
+"GET /api/trips/trips/4/media/ HTTP/1.1" 200 2
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"OPTIONS /api/trips/trips/1/ HTTP/1.1" 200 0
+"OPTIONS /api/trips/trips/1/destinations/ HTTP/1.1" 200 0
+"OPTIONS /api/trips/trips/1/media/ HTTP/1.1" 200 0
+"OPTIONS /api/trips/trips/1/destinations/ HTTP/1.1" 200 0
+"OPTIONS /api/trips/trips/1/ HTTP/1.1" 200 0
+"OPTIONS /api/trips/trips/1/media/ HTTP/1.1" 200 0
+"GET /api/trips/trips/1/destinations/ HTTP/1.1" 200 52
+"GET /api/trips/trips/1/ HTTP/1.1" 200 494
+"GET /api/trips/trips/1/media/ HTTP/1.1" 200 2
+"GET /api/trips/trips/1/destinations/ HTTP/1.1" 200 52
+"GET /api/trips/trips/1/ HTTP/1.1" 200 494
+"GET /api/trips/trips/1/media/ HTTP/1.1" 200 2
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/trips/trips/1/destinations/ HTTP/1.1" 200 52
+"GET /api/trips/trips/1/ HTTP/1.1" 200 494
+"GET /api/trips/trips/1/media/ HTTP/1.1" 200 2
+"GET /api/trips/trips/1/destinations/ HTTP/1.1" 200 52
+"GET /api/trips/trips/1/media/ HTTP/1.1" 200 2
+"GET /api/trips/trips/1/ HTTP/1.1" 200 494
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+C:\Users\Qie\Documents\AUOW\FYP\TripMate\tripmate_backend\trips\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\Qie\Documents\AUOW\FYP\TripMate\tripmate_backend\tripmate_backend\settings.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\Qie\Documents\AUOW\FYP\TripMate\tripmate_backend\trips\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+"GET /api/accounts/profile/ HTTP/1.1" 200 259
+C:\Users\Qie\Documents\AUOW\FYP\TripMate\tripmate_backend\trips\views.py changed, reloading.
+Watching for file changes with StatReloader

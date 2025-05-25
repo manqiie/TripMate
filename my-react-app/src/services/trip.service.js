@@ -32,7 +32,7 @@ const TripService = {
     return apiClient.post(`trips/trips/${tripId}/duplicate/`);
   },
 
-  // Destination operations
+    // Destination operations - FIXED: Using correct nested endpoints
   getTripDestinations: (tripId) => {
     return apiClient.get(`trips/trips/${tripId}/destinations/`);
   },
