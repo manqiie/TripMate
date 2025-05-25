@@ -93,70 +93,97 @@ const TripDetail = () => {
     }
   };
 
-  const loadGoogleMapsScript = () => {
-    // Check if Google Maps API is already loaded
-    if (window.google && window.google.maps) {
-      console.log("Google Maps API already loaded");
-      setMapLoaded(true);
-      return;
-    }
+const loadGoogleMapsScript = () => {
+  // Check if Google Maps API is already loaded
+  if (window.google && window.google.maps) {
+    console.log("Google Maps API already loaded");
+    setMapLoaded(true);
+    return;
+  }
 
-    // Check if script is already being loaded
-    const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
-    if (existingScript) {
-      console.log("Google Maps script already exists, waiting for load...");
-      
-      // Set a timeout to check if it loads
-      mapLoadTimeoutRef.current = setTimeout(() => {
-        if (window.google && window.google.maps) {
-          setMapLoaded(true);
-        } else {
-          setMapError('Google Maps API failed to load within timeout period.');
-        }
-      }, 10000); // 10 second timeout
-      
-      return;
-    }
-
-    console.log("Loading Google Maps API script...");
+  // Check if script is already being loaded
+  const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
+  if (existingScript) {
+    console.log("Google Maps script already exists, waiting for load...");
     
-    try {
-      // Get API key from environment variable
-      const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
-      
-      if (!apiKey) {
-        console.error('Google Maps API key not found in environment variables');
-        setMapError('Google Maps API key not configured. Please check your environment variables.');
-        return;
-      }
-
-      // Create script element to load Google Maps API
-      const googleMapScript = document.createElement('script');
-      googleMapScript.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
-      googleMapScript.async = true;
-      googleMapScript.defer = true;
-      
-      // Handle script load event
-      googleMapScript.addEventListener('load', () => {
-        console.log("Google Maps API loaded successfully");
+    // Wait for existing script to load
+    existingScript.addEventListener('load', () => {
+      if (window.google && window.google.maps) {
         setMapLoaded(true);
         setMapError('');
-      });
-      
-      // Handle script error
-      googleMapScript.addEventListener('error', (e) => {
-        console.error('Failed to load Google Maps API:', e);
-        setMapError('Failed to load Google Maps API. Please check your API key and internet connection.');
-      });
-      
-      // Append script to document
-      document.head.appendChild(googleMapScript);
-      
-    } catch (error) {
-      console.error('Error creating Google Maps script:', error);
-      setMapError('Error initializing Google Maps.');
+      }
+    });
+    
+    existingScript.addEventListener('error', () => {
+      setMapError('Failed to load Google Maps API. Please check your API key.');
+    });
+    
+    return;
+  }
+
+  console.log("Loading Google Maps API script...");
+  
+  try {
+    // Get API key from environment variable
+    const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+    
+    console.log("API Key found:", apiKey ? "Yes" : "No");
+    console.log("API Key length:", apiKey ? apiKey.length : 0);
+    
+    if (!apiKey) {
+      console.error('Google Maps API key not found in environment variables');
+      setMapError('Google Maps API key not configured. Please check your .env file.');
+      return;
     }
-  };
+
+    // Validate API key format
+    if (!apiKey.startsWith('AIza') || apiKey.length < 30) {
+      console.error('Invalid Google Maps API key format');
+      setMapError('Invalid Google Maps API key format. Please check your API key.');
+      return;
+    }
+
+    // Create script element to load Google Maps API
+    const googleMapScript = document.createElement('script');
+    googleMapScript.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initMap`;
+    googleMapScript.async = true;
+    googleMapScript.defer = true;
+    
+    // Create a global callback function
+    window.initMap = () => {
+      console.log("Google Maps API loaded successfully via callback");
+      setMapLoaded(true);
+      setMapError('');
+      // Clean up the global callback
+      delete window.initMap;
+    };
+    
+    // Handle script error
+    googleMapScript.addEventListener('error', (e) => {
+      console.error('Failed to load Google Maps API:', e);
+      setMapError('Failed to load Google Maps API. Please check your API key and internet connection.');
+      // Clean up the global callback
+      delete window.initMap;
+    });
+    
+    // Append script to document
+    document.head.appendChild(googleMapScript);
+    
+    // Set a timeout as backup
+    setTimeout(() => {
+      if (!window.google) {
+        console.error('Google Maps API failed to load within timeout');
+        setMapError('Google Maps API took too long to load. Please refresh the page.');
+        // Clean up the global callback
+        delete window.initMap;
+      }
+    }, 10000); // 10 second timeout
+    
+  } catch (error) {
+    console.error('Error creating Google Maps script:', error);
+    setMapError('Error initializing Google Maps: ' + error.message);
+  }
+};
 
   useEffect(() => {
     if (mapLoaded && mapRef.current && !map) {
